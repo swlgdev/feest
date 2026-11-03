@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Gastenboek - Joyce &amp; Marco</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap">
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+
+<!-- Inloggen -->
+<div class="login" id="loginView" hidden>
+  <form class="login-card" id="loginForm">
+    <svg width="56" height="64" viewBox="0 0 64 74" role="img" aria-label="Monogram M &amp; J"><path d="M4 4 H60 V36 C60 54 46 65 32 71 C18 65 4 54 4 36 Z" fill="#FBF7F1" stroke="#C9A46A" stroke-width="2.5"/><text x="32" y="39" text-anchor="middle" font-family="Cormorant Garamond, serif" font-weight="700" font-size="24" fill="#8E1A1C">M&amp;J</text></svg>
+    <h1>Gastenboek</h1>
+    <p>Alleen voor Joyce &amp; Marco.</p>
+    <div class="field">
+      <label for="pw">Wachtwoord</label>
+      <input id="pw" type="password" autocomplete="current-password" required>
+    </div>
+    <p class="error" id="loginError" role="alert" hidden></p>
+    <button type="submit" class="btn-primary" id="loginBtn">Inloggen</button>
+  </form>
+</div>
+
+<!-- Dashboard -->
+<div id="dashView" hidden>
+  <header class="top">
+    <div class="top-inner">
+      <svg width="44" height="50" viewBox="0 0 64 74" aria-hidden="true"><path d="M4 4 H60 V36 C60 54 46 65 32 71 C18 65 4 54 4 36 Z" fill="#FBF7F1" stroke="#C9A46A" stroke-width="2.5"/><text x="32" y="39" text-anchor="middle" font-family="Cormorant Garamond, serif" font-weight="700" font-size="24" fill="#8E1A1C">M&amp;J</text></svg>
+      <div class="top-title">
+        <h1>Jullie gastenboek</h1>
+        <p>Alleen voor Joyce &amp; Marco</p>
+      </div>
+      <div class="top-actions">
+        <button type="button" class="btn-gold" id="printBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+          Download als boekje (PDF)
+        </button>
+        <button type="button" class="btn-line" id="logoutBtn">Uitloggen</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="stats">
+      <div class="stat"><p>Berichten</p><strong id="sTotal">0</strong></div>
+      <div class="stat"><p>Nieuw sinds "gelezen"</p><strong id="sNew">0</strong></div>
+      <div class="stat"><p>Met foto</p><strong id="sFoto">0</strong></div>
+      <div class="stat dark"><p>Verzoeknummers</p><strong id="sSongs">0</strong></div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search">
+        <label for="q">Zoek in berichten</label>
+        <input id="q" type="search" placeholder="Naam of woord...">
+      </div>
+      <div class="filters" role="group" aria-label="Filter">
+        <button type="button" data-f="alles" aria-pressed="true">Alles</button>
+        <button type="button" data-f="nieuw" aria-pressed="false">Nieuw</button>
+        <button type="button" data-f="favoriet" aria-pressed="false">Favorieten</button>
+        <button type="button" data-f="foto" aria-pressed="false">Met foto</button>
+      </div>
+      <button type="button" class="btn-line-dark" id="markReadBtn">Alles gelezen</button>
+    </div>
+
+    <div class="layout">
+      <section class="grid" id="grid" aria-label="Berichten" aria-live="polite"></section>
+      <aside class="side">
+        <section class="panel dark">
+          <h2>Verzoeknummers</h2>
+          <ol id="songs"></ol>
+          <p class="empty-small" id="songsEmpty">Nog geen verzoeknummers.</p>
+          <button type="button" class="btn-line" id="copySongs">Kopieer lijst voor de DJ</button>
+        </section>
+        <section class="panel">
+          <h2 class="accent">Feestavond</h2>
+          <p>Zet de favoriete berichten (of alle, als er nog geen favorieten zijn) als diavoorstelling op een scherm.</p>
+          <button type="button" class="btn-primary" id="slideBtn">Start diavoorstelling</button>
+        </section>
+      </aside>
+    </div>
+  </main>
+</div>
+
+<!-- Diavoorstelling -->
+<div class="slides" id="slides" hidden>
+  <button type="button" class="slides-close" id="slidesClose" aria-label="Sluit diavoorstelling">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <div class="slide" id="slide"></div>
+</div>
+
+<!-- Boekje (alleen voor afdrukken) -->
+<div class="book" id="book" aria-hidden="true"></div>
+
+<script src="/admin/admin.js" defer></script>
+</body>
+</html>

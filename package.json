@@ -1,0 +1,12 @@
+{
+  "name": "feest-joyce-marco",
+  "private": true,
+  "type": "module",
+  "description": "Feestpagina en privé gastenboek voor het feest van Joyce & Marco (app.joycemarco.nl)",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.8.2"
+  }
+}

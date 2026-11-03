@@ -1,0 +1,15 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//joycemarco.nl//feest//NL
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:feest-2026-11-21@joycemarco.nl
+DTSTAMP:20261103T180000Z
+DTSTART:20261121T183000Z
+DTEND:20261121T230000Z
+SUMMARY:Feest Joyce & Marco
+LOCATION:Central Park Voorburg\, Oosteinde 14\, 2271 EH Voorburg
+DESCRIPTION:Samen de 40e en 50e verjaardag van Joyce & Marco vieren. Kom graag iets voor 19:30. https://app.joycemarco.nl
+END:VEVENT
+END:VCALENDAR
