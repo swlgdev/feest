@@ -3,6 +3,7 @@
   "framework": null,
   "buildCommand": "",
   "outputDirectory": "public",
+  "regions": ["fra1"],
   "cleanUrls": true,
   "trailingSlash": false,
   "headers": [
