@@ -92,7 +92,7 @@
 
   function progress() {
     var total = intro.offsetHeight - stage.offsetHeight;
-    if (total <= 0) return 1;
+    if (total <= 0) return 0;
     return clamp(-intro.getBoundingClientRect().top / total);
   }
 
@@ -108,8 +108,22 @@
     });
   }
 
+  // Altijd beginnen bij de gesloten poort: de browser mag de oude scrollpositie
+  // niet terugzetten (Safari en Chrome doen dat bij opnieuw openen of herladen).
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  function toTop() {
+    if (location.hash || window.scrollY === 0) return;
+    var el = document.documentElement, prev = el.style.scrollBehavior;
+    el.style.scrollBehavior = 'auto'; // direct naar boven, niet zichtbaar terugscrollen
+    window.scrollTo(0, 0);
+    el.style.scrollBehavior = prev;
+  }
+  toTop();
+
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', function () { lastP = -1; onScroll(); });
+  window.addEventListener('load', function () { toTop(); lastP = -1; onScroll(); });
+  window.addEventListener('pageshow', function (e) { if (e.persisted) { toTop(); lastP = -1; onScroll(); } });
   render(progress());
 
   $('openGate').addEventListener('click', function () {
