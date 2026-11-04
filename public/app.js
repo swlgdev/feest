@@ -24,6 +24,9 @@
   var head = $('head'), gate = $('gate'), pL = $('pillarL'), pR = $('pillarR');
   var wL = $('wingL'), wR = $('wingR'), glitter = $('glitter'), party = $('party');
   var welcome = $('welcome'), hint = $('hint'), stageConfetti = $('stageConfetti');
+  var fit = $('photoFit'), wallL = $('wallL'), wallR = $('wallR');
+  var desktopMq = window.matchMedia ? window.matchMedia('(min-width: 900px)') : null;
+  function isDesktop() { return !!(desktopMq && desktopMq.matches); }
 
   // gouden glinsters
   (function () {
@@ -66,18 +69,36 @@
     var r = ease(clamp((p - 0.25) / 0.35));
     var z = ease(clamp((p - 0.55) / 0.45));
 
-    var top = (0.42 * H - 4) * (1 - r), side = pw * (1 - r);
-    photo.style.clipPath = 'inset(' + top.toFixed(1) + 'px ' + side.toFixed(1) + 'px 0px ' + side.toFixed(1) + 'px)';
+    var push;
+    if (isDesktop()) {
+      // Desktop: de foto past eerst precies in de poortopening en groeit dan naar het hele scherm.
+      var oL = pL.offsetLeft + pL.offsetWidth, oR = pR.offsetLeft, oT = wL.offsetTop - 4;
+      var oW = oR - oL, oH = H - oT;
+      var s0 = Math.max(oW / W, oH / H);
+      var s = s0 + (1 - s0) * r;
+      var tx = (oL + (oW - W * s0) / 2) * (1 - r), ty = (oT + oH - H * s0) * (1 - r);
+      photo.style.clipPath = 'inset(' + (oT * (1 - r)).toFixed(1) + 'px ' + ((W - oR) * (1 - r)).toFixed(1) + 'px 0px ' + (oL * (1 - r)).toFixed(1) + 'px)';
+      fit.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + s.toFixed(4) + ')';
+      img.style.transform = 'scale(' + (1 + 0.75 * z).toFixed(3) + ')';
+      push = W * 0.22 * r;
+    } else {
+      var top = (0.42 * H - 4) * (1 - r), side = pw * (1 - r);
+      photo.style.clipPath = 'inset(' + top.toFixed(1) + 'px ' + side.toFixed(1) + 'px 0px ' + side.toFixed(1) + 'px)';
+      fit.style.transform = '';
+      var k = 0.72 + 0.28 * r + 0.85 * z;
+      img.style.transform = 'translateY(' + (0.094 * H * (1 - r)).toFixed(1) + 'px) scale(' + k.toFixed(3) + ')';
+      push = 70 * r;
+    }
     photo.style.webkitClipPath = photo.style.clipPath;
-    var k = 0.72 + 0.28 * r + 0.85 * z;
-    img.style.transform = 'translateY(' + (0.094 * H * (1 - r)).toFixed(1) + 'px) scale(' + k.toFixed(3) + ')';
 
     head.style.opacity = (1 - clamp(r * 1.8)).toFixed(3);
     head.style.transform = 'translateY(' + (-60 * r).toFixed(1) + 'px)';
     wL.style.transform = 'rotateY(' + (-g * 100).toFixed(1) + 'deg)';
     wR.style.transform = 'rotateY(' + (g * 100).toFixed(1) + 'deg)';
-    pL.style.transform = 'translateX(' + (-70 * r).toFixed(1) + 'px)';
-    pR.style.transform = 'translateX(' + (70 * r).toFixed(1) + 'px)';
+    pL.style.transform = 'translateX(' + (-push).toFixed(1) + 'px)';
+    pR.style.transform = 'translateX(' + push.toFixed(1) + 'px)';
+    wallL.style.transform = 'translateX(' + (-push).toFixed(1) + 'px)';
+    wallR.style.transform = 'translateX(' + push.toFixed(1) + 'px)';
     gate.style.opacity = (1 - clamp((p - 0.3) / 0.25)).toFixed(3);
 
     glitter.classList.toggle('on', g > 0.05 && p < 0.7);
