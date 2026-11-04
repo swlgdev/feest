@@ -110,7 +110,7 @@ p{margin:0}
 .cards{display:flex;flex-direction:column;gap:18px;padding:20px 14px 10px}
 /* Mobiel: kolommen "oplossen" en de oorspronkelijke volgorde houden */
 .col{display:contents}
-#tijden{order:1} #route{order:2} #cadeau{order:3} #bericht{order:4}
+#tijden{order:1} #cadeau{order:2} #bericht{order:3} #route{order:4}
 .photo-fit{position:absolute;inset:0;transform-origin:0 0;will-change:transform}
 .wall{display:none}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px 22px;display:flex;flex-direction:column;gap:16px;scroll-margin-top:16px}
@@ -232,8 +232,12 @@ p{margin:0}
   .col-a > .card:last-child{flex:1}
   /* Rechts vangt de foto bij de route het hoogteverschil op */
   .col-b > #route{flex:1}
-  .col-b > #route .card-photo{flex:1 1 auto;height:auto;min-height:240px}
+  .col-b > #route .card-photo{flex:1 1 auto;height:auto;min-height:200px}
   .col-b > #cadeau{flex:0 0 auto}
+  /* Links: het tekstvak van het berichtje groeit mee als de rechterkolom hoger is */
+  #bericht .form{flex:1}
+  #bericht .field-grow{flex:1}
+  #bericht .field-grow textarea{flex:1;min-height:140px}
   .card{padding:28px 30px}
   .card-flush{padding:0}
   .card-body{padding:26px 30px 30px}

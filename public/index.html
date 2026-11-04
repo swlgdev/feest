@@ -133,9 +133,9 @@
 
   <nav class="chips" aria-label="Snel naar">
     <a href="#tijden">De avond</a>
-    <a href="#route">Route &amp; parkeren</a>
     <a href="#cadeau">Cadeautip</a>
     <a href="#bericht" class="chip-accent">Schrijf een bericht</a>
+    <a href="#route">Route &amp; parkeren</a>
   </nav>
 
   <div class="cards">
@@ -190,7 +190,7 @@
           <label for="gb-naam">Je naam</label>
           <input id="gb-naam" name="naam" type="text" autocomplete="name" maxlength="80" required>
         </div>
-        <div class="field">
+        <div class="field field-grow">
           <label for="gb-bericht">Je bericht</label>
           <textarea id="gb-bericht" name="bericht" rows="5" maxlength="3000" required></textarea>
         </div>
@@ -216,6 +216,23 @@
     </section>
     </div>
     <div class="col col-b">
+    <!-- ============ CADEAU ============ -->
+    <section id="cadeau" class="card">
+      <h2 class="card-title"><span></span>Cadeautip<span></span></h2>
+      <p>Jullie aanwezigheid is voor ons het allerleukste cadeau. Mocht je ons toch iets willen geven, dan sparen we graag voor een mooie, blijvende herinnering aan de muur bij ons thuis.</p>
+      <p class="muted italic">Op de avond zelf nemen we liever geen enveloppen of losse cadeaus in ontvangst. Een bijdrage via onderstaande link is voor ons het fijnst.</p>
+      <a class="btn-primary" id="payBtn" href="https://betaalverzoek.rabobank.nl/betaalverzoek/?id=S0JUZfhqTZWBTbw87NHKEw" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="13" rx="1.5"/><path d="M3 12h18M12 8v13M12 8c-2-4-6-4-6-1.5S10 8 12 8zM12 8c2-4 6-4 6-1.5S14 8 12 8z"/></svg>
+        Vrijblijvend bijdragen
+      </a>
+      <div class="qr-row">
+        <div class="qr">
+          <img src="/assets/qr-betaling.png" alt="QR-code om bij te dragen" width="104" height="104">
+        </div>
+        <p class="muted small">Bekijk je deze pagina op een computer? Scan dan de QR-code met je telefoon.</p>
+      </div>
+    </section>
+
     <!-- ============ ROUTE ============ -->
     <section id="route" class="card card-flush">
       <img class="card-photo" src="/assets/venue_wide.jpg" alt="Voorgevel van Central Park Voorburg bij avond" loading="lazy">
@@ -241,23 +258,6 @@
             <p>Gratis parkeren op het eigen terrein van Central Park in Park Vreugd &amp; Rust. Is het terrein vol? Dan kun je in de directe omgeving parkeren.</p>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- ============ CADEAU ============ -->
-    <section id="cadeau" class="card">
-      <h2 class="card-title"><span></span>Cadeautip<span></span></h2>
-      <p>Jullie aanwezigheid is voor ons het allerleukste cadeau. Mocht je ons toch iets willen geven, dan sparen we graag voor een mooie, blijvende herinnering aan de muur bij ons thuis.</p>
-      <p class="muted italic">Op de avond zelf nemen we liever geen enveloppen of losse cadeaus in ontvangst. Een bijdrage via onderstaande link is voor ons het fijnst.</p>
-      <a class="btn-primary" id="payBtn" href="https://betaalverzoek.rabobank.nl/betaalverzoek/?id=S0JUZfhqTZWBTbw87NHKEw" target="_blank" rel="noopener">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="13" rx="1.5"/><path d="M3 12h18M12 8v13M12 8c-2-4-6-4-6-1.5S10 8 12 8zM12 8c2-4 6-4 6-1.5S14 8 12 8z"/></svg>
-        Vrijblijvend bijdragen
-      </a>
-      <div class="qr-row">
-        <div class="qr">
-          <img src="/assets/qr-betaling.png" alt="QR-code om bij te dragen" width="104" height="104">
-        </div>
-        <p class="muted small">Bekijk je deze pagina op een computer? Scan dan de QR-code met je telefoon.</p>
       </div>
     </section>
 
