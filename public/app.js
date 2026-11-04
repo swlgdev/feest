@@ -106,6 +106,7 @@
     welcome.classList.toggle('on', p > 0.8);
     welcome.style.opacity = clamp((p - 0.8) / 0.16).toFixed(3);
     hint.classList.toggle('off', p > 0.04);
+    stage.classList.toggle('idle', p < 0.01);
 
     if (p >= 0.85 && !celebrated) { celebrated = true; confetti(stageConfetti, 70); }
     if (p < 0.5 && celebrated) { celebrated = false; }
