@@ -28,7 +28,7 @@ Berichten en foto's staan in een **privé** Vercel Blob store; alleen de serverf
 ## Nog in te vullen
 
 - **Betaallink:** zet de echte link in `BETAAL_URL` bovenin `public/app.js`.
-- **QR-code:** vervang `public/assets/qr-demo.png` door de QR-code van de betaallink en haal het label "Demo" weg in `public/index.html`.
+- **QR-code:** vervang `public/assets/qr-demo.png` door de QR-code van de betaallink.
 
 ## Lokaal draaien
 
