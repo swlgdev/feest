@@ -4,7 +4,7 @@ import { next } from '@vercel/functions';
 // (/i/<token>) binnenkwamen, of Joyce & Marco (ingelogd op /admin), mogen erin.
 export const config = {
   matcher: [
-    '/((?!api/|i/|admin|geen-toegang|favicon\\.svg|robots\\.txt|assets/leaf_corner\\.png).*)'
+    '/((?!api/|i/|admin|geen-toegang|favicon\\.svg|robots\\.txt|assets/leaf_corner\\.png|assets/og\\.jpg).*)'
   ]
 };
 

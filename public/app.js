@@ -117,6 +117,16 @@
     window.scrollTo({ top: y, behavior: reduceMotion ? 'auto' : 'smooth' });
   });
 
+  /* ---------- Bezoek registreren (eén keer per browsersessie) ---------- */
+  try {
+    if (!sessionStorage.getItem('jm_seen')) {
+      sessionStorage.setItem('jm_seen', '1');
+      fetch('/api/seen', { method: 'POST', credentials: 'same-origin', keepalive: true }).catch(function () {});
+    }
+  } catch (e) {
+    fetch('/api/seen', { method: 'POST', credentials: 'same-origin' }).catch(function () {});
+  }
+
   /* ---------- Persoonlijke begroeting ---------- */
   fetch('/api/me', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
     if (!j || !j.naam) return;

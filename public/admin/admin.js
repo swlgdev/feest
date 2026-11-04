@@ -92,8 +92,59 @@
     return t.replace(/\D/g, '');
   }
   function waHref(g) { return 'https://wa.me/' + waNumber(g.telefoon) + '?text=' + encodeURIComponent(guestText(g)); }
-  function mailHref(g) {
-    return 'mailto:' + encodeURIComponent(g.email).replace(/%40/g, '@') + '?subject=' + encodeURIComponent(G.settings.subject || '') + '&body=' + encodeURIComponent(guestText(g));
+  function mailHref(g, body) {
+    return 'mailto:' + encodeURIComponent(g.email).replace(/%40/g, '@') + '?subject=' + encodeURIComponent(G.settings.subject || '') +
+      (body ? '&body=' + encodeURIComponent(body) : '');
+  }
+
+  // Opgemaakte mail: {link} wordt een knop "Klik hier om je uitnodiging te openen".
+  var BTN_TEXT = 'Klik hier om je uitnodiging te openen';
+  function guestHtml(g) {
+    var url = esc(guestLink(g));
+    var button = '<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:20px 0"><tr>' +
+      '<td style="background:#8E1A1C;border-radius:6px;mso-padding-alt:12px 26px">' +
+      '<a href="' + url + '" style="display:inline-block;padding:12px 26px;color:#FBF7F1;text-decoration:none;font-family:Georgia,serif;font-size:16px;font-weight:bold">' + BTN_TEXT + '</a>' +
+      '</td></tr></table>';
+    var paras = (G.settings.template || '').replace(/\{naam\}/g, g.naam).split(/\n\s*\n/).map(function (p) {
+      if (p.trim() === '{link}') return button;
+      var safe = esc(p).replace(/\n/g, '<br>').replace(/\{link\}/g, '<a href="' + url + '" style="color:#8E1A1C">klik hier</a>');
+      return '<p style="margin:0 0 14px">' + safe + '</p>';
+    }).join('');
+    return '<div style="font-family:Georgia,\'Times New Roman\',serif;font-size:16px;line-height:1.6;color:#2F2B28;max-width:520px">' +
+      '<p style="margin:0 0 2px;font-size:12px;letter-spacing:4px;color:#3A3330">BIRTHDAY PARTY</p>' +
+      '<p style="margin:0 0 18px;font-size:24px;font-style:italic;color:#8E1A1C">Joyce &amp; Marco</p>' + paras + '</div>';
+  }
+
+  function toast(text) {
+    var t = $('toast'); t.textContent = text; t.hidden = false;
+    clearTimeout(toast._t); toast._t = setTimeout(function () { t.hidden = true; }, 7000);
+  }
+
+  function markSent(tok, via) {
+    var g = G.guests.find(function (x) { return x.token === tok; });
+    if (g && !g.sentAt) g.sentAt = new Date().toISOString();
+    if (g && (g.sentVia || []).indexOf(via) < 0) g.sentVia = (g.sentVia || []).concat([via]);
+    setTimeout(renderGuests, 300);
+    api('/api/admin/guests', { method: 'POST', body: { action: 'sent', token: tok, via: via } }).catch(function () {});
+  }
+
+  function sendMail(g) {
+    var html = guestHtml(g), plain = guestText(g);
+    var open = function (withBody) { window.location.href = mailHref(g, withBody ? plain : ''); };
+    try {
+      var item = new ClipboardItem({
+        'text/html': new Blob([html], { type: 'text/html' }),
+        'text/plain': new Blob([plain], { type: 'text/plain' })
+      });
+      navigator.clipboard.write([item]).then(function () {
+        toast('De opgemaakte mail voor ' + g.naam + ' staat klaar. Klik in je mail in het tekstvak en plak (Ctrl+V of Cmd+V; op je telefoon: lang drukken en Plakken).');
+        open(false);
+      }, function () { open(true); });
+    } catch (e) {
+      // Browser kan geen opgemaakte tekst kopiëren: val terug op de platte tekst met link.
+      open(true);
+    }
+    markSent(g.token, 'e-mail');
   }
 
   function visibleGuests() {
@@ -125,7 +176,7 @@
         '<div class="guest-main"><h3 class="guest-name">' + esc(g.naam) + '</h3><p class="guest-contact">' + contact + '</p><div class="chips">' + chips + '</div></div>' +
         '<div class="guest-actions">' +
         (g.telefoon ? '<a class="act wa" target="_blank" rel="noopener" href="' + esc(waHref(g)) + '" data-sent="' + g.token + '" data-via="WhatsApp">' + WA_ICON + 'WhatsApp</a>' : '') +
-        (g.email ? '<a class="act mail" href="' + esc(mailHref(g)) + '" data-sent="' + g.token + '" data-via="e-mail">' + MAIL_ICON + 'Mail</a>' : '') +
+        (g.email ? '<button type="button" class="act mail" data-mail="' + g.token + '">' + MAIL_ICON + 'Mail</button>' : '') +
         '<button type="button" class="act icon" data-copy="' + g.token + '" aria-label="Kopieer link van ' + esc(g.naam) + '" title="Kopieer link">' + LINK_ICON + '</button>' +
         '<button type="button" class="act icon" data-delguest="' + g.token + '" aria-label="Verwijder ' + esc(g.naam) + '" title="Verwijder">' + TRASH + '</button>' +
         '</div></article>';
@@ -136,13 +187,11 @@
     var sent = e.target.closest('[data-sent]');
     var copy = e.target.closest('[data-copy]');
     var del = e.target.closest('[data-delguest]');
-    if (sent) {
-      var tok = sent.getAttribute('data-sent'), via = sent.getAttribute('data-via');
-      var g = G.guests.find(function (x) { return x.token === tok; });
-      if (g && !g.sentAt) { g.sentAt = new Date().toISOString(); }
-      if (g) { g.sentVia = (g.sentVia || []).concat(g.sentVia && g.sentVia.indexOf(via) > -1 ? [] : [via]); }
-      setTimeout(renderGuests, 300);
-      api('/api/admin/guests', { method: 'POST', body: { action: 'sent', token: tok, via: via } }).catch(function () {});
+    var mail = e.target.closest('[data-mail]');
+    if (sent) markSent(sent.getAttribute('data-sent'), sent.getAttribute('data-via'));
+    if (mail) {
+      var mg = G.guests.find(function (x) { return x.token === mail.getAttribute('data-mail'); });
+      if (mg) sendMail(mg);
     }
     if (copy) {
       var cg = G.guests.find(function (x) { return x.token === copy.getAttribute('data-copy'); });

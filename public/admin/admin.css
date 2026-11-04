@@ -101,6 +101,8 @@ button{font-family:var(--body);cursor:pointer}
 .result{padding:10px 12px;border-radius:8px;background:#F6EBD7;font-size:15px;white-space:pre-line}
 .result.err{background:#F7E1DF;color:#7A1414}
 
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:60;width:min(92vw,520px);padding:14px 18px;border-radius:12px;background:#2F2B28;color:#FBF7F1;font-size:16px;line-height:1.45;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+
 .slides{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:6vh 8vw}
 .slides-close{position:absolute;top:16px;right:16px;width:48px;height:48px;border-radius:999px;border:1px solid var(--gold);background:var(--card);color:var(--accent);display:flex;align-items:center;justify-content:center}
 .slide{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:5vw;max-width:1400px;width:100%;animation:fade .8s ease both}

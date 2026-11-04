@@ -105,7 +105,7 @@
             <form id="tplForm" class="stack">
               <div class="field"><label for="tplSubject">Onderwerp (voor e-mail)</label><input id="tplSubject" type="text" maxlength="200"></div>
               <div class="field"><label for="tplText">Bericht</label><textarea id="tplText" rows="11" maxlength="4000"></textarea></div>
-              <p class="hint"><strong>{naam}</strong> en <strong>{link}</strong> worden per gast automatisch ingevuld.</p>
+              <p class="hint"><strong>{naam}</strong> en <strong>{link}</strong> worden per gast automatisch ingevuld. In de mail wordt {link} een knop "Klik hier om je uitnodiging te openen"; in WhatsApp blijft het een link met een voorbeeldplaatje.</p>
               <button type="submit" class="btn-primary">Tekst opslaan</button>
               <p class="result" id="tplResult" role="status" hidden></p>
             </form>
@@ -156,6 +156,8 @@
     </div>
   </main>
 </div>
+
+<div class="toast" id="toast" role="status" hidden></div>
 
 <!-- Diavoorstelling -->
 <div class="slides" id="slides" hidden>
