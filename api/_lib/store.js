@@ -76,7 +76,15 @@ export const DEFAULT_TEMPLATE =
   '{link}\n\n' +
   'Deze link is speciaal voor jou, deel hem dus liever niet.\n\n' +
   'Liefs,\nJoyce & Marco';
+export const DEFAULT_TEMPLATE_DUO =
+  'Lieve {naam},\n\n' +
+  'Wat ontzettend leuk dat jullie erbij zijn op ons feest! Via jullie persoonlijke link vinden jullie alles over de avond: ' +
+  'de tijden, de route, waar je kunt parkeren en een plekje om ons een berichtje te sturen.\n\n' +
+  '{link}\n\n' +
+  'Deze link is speciaal voor jullie, deel hem dus liever niet.\n\n' +
+  'Liefs,\nJoyce & Marco';
 export const DEFAULT_SUBJECT = 'Jouw persoonlijke uitnodiging voor het feest van Joyce & Marco';
+export const DEFAULT_SUBJECT_DUO = 'Jullie persoonlijke uitnodiging voor het feest van Joyce & Marco';
 
 export async function readGuest(token) {
   return readJson(`guests/${token}.json`);
@@ -109,7 +117,12 @@ export async function listGuests() {
 
 export async function readSettings() {
   const s = (await readJson(SETTINGS_PATH)) || {};
-  return { template: s.template || DEFAULT_TEMPLATE, subject: s.subject || DEFAULT_SUBJECT };
+  return {
+    template: s.template || DEFAULT_TEMPLATE,
+    subject: s.subject || DEFAULT_SUBJECT,
+    templateDuo: s.templateDuo || DEFAULT_TEMPLATE_DUO,
+    subjectDuo: s.subjectDuo || DEFAULT_SUBJECT_DUO
+  };
 }
 
 export async function writeSettings(settings) {

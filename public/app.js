@@ -2,7 +2,7 @@
   'use strict';
 
   // Vul hier de echte betaallink in (bijv. een Tikkie- of bunq-link).
-  var BETAAL_URL = '';
+  var BETAAL_URL = 'https://betaalverzoek.rabobank.nl/betaalverzoek/?id=S0JUZfhqTZWBTbw87NHKEw';
   var FEEST = new Date('2026-11-21T19:30:00+01:00').getTime();
   var COLORS = ['#8E1A1C', '#C9A46A', '#D9772B', '#B8321E', '#E8C9A0', '#6E1E2A'];
 
@@ -165,9 +165,14 @@
   /* ---------- Persoonlijke begroeting ---------- */
   fetch('/api/me', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
     if (!j || !j.naam) return;
-    $('greeting').textContent = 'Lieve ' + j.naam + ',';
+    var duo = !!j.naam2;
+    var namen = duo ? j.naam + ' en ' + j.naam2 : j.naam;
+    $('greeting').textContent = 'Lieve ' + namen + ',';
+    $('welkomTekst').textContent = duo
+      ? 'Ontzettend leuk dat jullie erbij zijn om samen met ons onze 40e en 50e verjaardag te vieren! We kijken er enorm naar uit om er met familie en vrienden een bijzondere en feestelijke avond van te maken.'
+      : 'Ontzettend leuk dat je erbij bent om samen met ons onze 40e en 50e verjaardag te vieren! We kijken er enorm naar uit om er met familie en vrienden een bijzondere en feestelijke avond van te maken.';
     var n = $('gb-naam');
-    if (n && !n.value) n.value = j.naam;
+    if (n && !n.value) n.value = namen;
   }).catch(function () {});
 
   /* ---------- Aftellen ---------- */
@@ -235,7 +240,7 @@
     fetch('/api/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ naam: naam, bericht: bericht, liedje: form.liedje.value.trim(), foto: fotoData, website: form.website.value })
+      body: JSON.stringify({ naam: naam, bericht: bericht, foto: fotoData, website: form.website.value })
     }).then(function (res) {
       return res.json().catch(function () { return {}; }).then(function (data) {
         if (!res.ok) throw new Error(data.error || 'Er ging iets mis.');

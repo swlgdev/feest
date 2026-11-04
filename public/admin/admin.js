@@ -77,11 +77,16 @@
   var gFilter = 'alles', gQuery = '';
   var WA_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21l1.7-5A8.5 8.5 0 1 1 8 19.3z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1.2-1.4-2-1-1 .9c-1-.4-1.9-1.3-2.3-2.3l.9-1-1-2z"/></svg>';
   var MAIL_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
+  var EDIT_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg>';
   var LINK_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>';
 
   function guestLink(g) { return G.baseUrl + '/i/' + g.token; }
+  function isDuo(g) { return !!(g.naam2 && g.naam2.trim()); }
+  function namen(g) { return isDuo(g) ? g.naam + ' en ' + g.naam2 : g.naam; }
+  function tplFor(g) { return (isDuo(g) ? G.settings.templateDuo : G.settings.template) || ''; }
+  function subjectFor(g) { return (isDuo(g) ? G.settings.subjectDuo : G.settings.subject) || ''; }
   function guestText(g) {
-    return (G.settings.template || '').replace(/\{naam\}/g, g.naam).replace(/\{link\}/g, guestLink(g));
+    return tplFor(g).replace(/\{naam\}/g, namen(g)).replace(/\{link\}/g, guestLink(g));
   }
   // 06 12345678 / +31 6... / 0031 6... -> 316...
   function waNumber(tel) {
@@ -93,7 +98,7 @@
   }
   function waHref(g) { return 'https://wa.me/' + waNumber(g.telefoon) + '?text=' + encodeURIComponent(guestText(g)); }
   function mailHref(g, body) {
-    return 'mailto:' + encodeURIComponent(g.email).replace(/%40/g, '@') + '?subject=' + encodeURIComponent(G.settings.subject || '') +
+    return 'mailto:' + encodeURIComponent(g.email).replace(/%40/g, '@') + '?subject=' + encodeURIComponent(subjectFor(g)) +
       (body ? '&body=' + encodeURIComponent(body) : '');
   }
 
@@ -105,7 +110,7 @@
       '<td style="background:#8E1A1C;border-radius:6px;mso-padding-alt:12px 26px">' +
       '<a href="' + url + '" style="display:inline-block;padding:12px 26px;color:#FBF7F1;text-decoration:none;font-family:Georgia,serif;font-size:16px;font-weight:bold">' + BTN_TEXT + '</a>' +
       '</td></tr></table>';
-    var paras = (G.settings.template || '').replace(/\{naam\}/g, g.naam).split(/\n\s*\n/).map(function (p) {
+    var paras = tplFor(g).replace(/\{naam\}/g, namen(g)).split(/\n\s*\n/).map(function (p) {
       if (p.trim() === '{link}') return button;
       var safe = esc(p).replace(/\n/g, '<br>').replace(/\{link\}/g, '<a href="' + url + '" style="color:#8E1A1C">klik hier</a>');
       return '<p style="margin:0 0 14px">' + safe + '</p>';
@@ -137,7 +142,7 @@
         'text/plain': new Blob([plain], { type: 'text/plain' })
       });
       navigator.clipboard.write([item]).then(function () {
-        toast('De opgemaakte mail voor ' + g.naam + ' staat klaar. Klik in je mail in het tekstvak en plak (Ctrl+V of Cmd+V; op je telefoon: lang drukken en Plakken).');
+        toast('De opgemaakte mail voor ' + namen(g) + ' staat klaar. Klik in je mail in het tekstvak en plak (Ctrl+V of Cmd+V; op je telefoon: lang drukken en Plakken).');
         open(false);
       }, function () { open(true); });
     } catch (e) {
@@ -153,7 +158,7 @@
       if (gFilter === 'nietverstuurd' && g.sentAt) return false;
       if (gFilter === 'nietgeopend' && g.openedAt) return false;
       if (gFilter === 'geopend' && !g.openedAt) return false;
-      if (q && (g.naam + ' ' + g.email + ' ' + g.telefoon).toLowerCase().indexOf(q) < 0) return false;
+      if (q && (g.naam + ' ' + (g.naam2 || '') + ' ' + g.email + ' ' + g.telefoon).toLowerCase().indexOf(q) < 0) return false;
       return true;
     });
   }
@@ -173,10 +178,11 @@
       if (!g.sentAt && !g.openedAt) chips += '<span class="chip">Nog niet verstuurd</span>';
       var contact = [g.email, g.telefoon].filter(Boolean).map(esc).join(' · ');
       return '<article class="guest">' +
-        '<div class="guest-main"><h3 class="guest-name">' + esc(g.naam) + '</h3><p class="guest-contact">' + contact + '</p><div class="chips">' + chips + '</div></div>' +
+        '<div class="guest-main"><h3 class="guest-name">' + esc(namen(g)) + '</h3><p class="guest-contact">' + contact + '</p><div class="chips">' + chips + '</div></div>' +
         '<div class="guest-actions">' +
         (g.telefoon ? '<a class="act wa" target="_blank" rel="noopener" href="' + esc(waHref(g)) + '" data-sent="' + g.token + '" data-via="WhatsApp">' + WA_ICON + 'WhatsApp</a>' : '') +
         (g.email ? '<button type="button" class="act mail" data-mail="' + g.token + '">' + MAIL_ICON + 'Mail</button>' : '') +
+        '<button type="button" class="act icon" data-edit="' + g.token + '" aria-label="Namen wijzigen van ' + esc(namen(g)) + '" title="Namen wijzigen">' + EDIT_ICON + '</button>' +
         '<button type="button" class="act icon" data-copy="' + g.token + '" aria-label="Kopieer link van ' + esc(g.naam) + '" title="Kopieer link">' + LINK_ICON + '</button>' +
         '<button type="button" class="act icon" data-delguest="' + g.token + '" aria-label="Verwijder ' + esc(g.naam) + '" title="Verwijder">' + TRASH + '</button>' +
         '</div></article>';
@@ -188,6 +194,17 @@
     var copy = e.target.closest('[data-copy]');
     var del = e.target.closest('[data-delguest]');
     var mail = e.target.closest('[data-mail]');
+    var edit = e.target.closest('[data-edit]');
+    if (edit) {
+      var eg = G.guests.find(function (x) { return x.token === edit.getAttribute('data-edit'); });
+      if (!eg) return;
+      var n1 = prompt('Naam', eg.naam); if (n1 === null) return;
+      var n2 = prompt('Tweede naam (bij een stel, laat leeg bij één persoon)', eg.naam2 || ''); if (n2 === null) return;
+      if (!n1.trim()) return;
+      api('/api/admin/guests', { method: 'POST', body: { action: 'update', token: eg.token, naam: n1, naam2: n2 } }).then(function (j) {
+        Object.assign(eg, j.guest); renderGuests();
+      }).catch(function (x) { if (x.message !== 'login') alert(x.message); });
+    }
     if (sent) markSent(sent.getAttribute('data-sent'), sent.getAttribute('data-via'));
     if (mail) {
       var mg = G.guests.find(function (x) { return x.token === mail.getAttribute('data-mail'); });
@@ -203,7 +220,7 @@
     if (del) {
       var dt = del.getAttribute('data-delguest');
       var dg = G.guests.find(function (x) { return x.token === dt; });
-      if (!confirm((dg ? dg.naam : 'Deze gast') + ' verwijderen? De persoonlijke link werkt dan niet meer.')) return;
+      if (!confirm((dg ? namen(dg) : 'Deze gast') + ' verwijderen? De persoonlijke link werkt dan niet meer.')) return;
       api('/api/admin/guests?token=' + encodeURIComponent(dt), { method: 'DELETE' }).then(function () {
         G.guests = G.guests.filter(function (x) { return x.token !== dt; });
         renderGuests();
@@ -227,7 +244,7 @@
     api('/api/admin/guests', { method: 'POST', body: { action: 'add', guests: list } }).then(function (j) {
       G.guests = G.guests.concat(j.added).sort(function (a, b) { return a.naam.localeCompare(b.naam, 'nl'); });
       renderGuests();
-      var msg = j.added.length + (j.added.length === 1 ? ' gast toegevoegd.' : ' gasten toegevoegd.');
+      var msg = j.added.length + (j.added.length === 1 ? ' uitnodiging toegevoegd.' : ' uitnodigingen toegevoegd.');
       if (j.skipped.length) msg += '\nNiet toegevoegd:\n' + j.skipped.map(function (s) { return '- ' + (s.naam || '(zonder naam)') + ': ' + s.reden; }).join('\n');
       showResult('addResult', msg, j.added.length === 0);
       if (done) done(j);
@@ -236,23 +253,28 @@
 
   $('addOne').addEventListener('submit', function (e) {
     e.preventDefault();
-    var naam = $('aNaam').value.trim(), email = $('aMail').value.trim(), tel = $('aTel').value.trim();
+    var naam = $('aNaam').value.trim(), naam2 = $('aNaam2').value.trim(), email = $('aMail').value.trim(), tel = $('aTel').value.trim();
     if (!naam || (!email && !tel)) { showResult('addResult', 'Vul een naam in en een e-mailadres of telefoonnummer.', true); return; }
-    addGuests([{ naam: naam, email: email, telefoon: tel }], function (j) {
-      if (j.added.length) { $('aNaam').value = ''; $('aMail').value = ''; $('aTel').value = ''; $('aNaam').focus(); }
+    addGuests([{ naam: naam, naam2: naam2, email: email, telefoon: tel }], function (j) {
+      if (j.added.length) { $('aNaam').value = ''; $('aNaam2').value = ''; $('aMail').value = ''; $('aTel').value = ''; $('aNaam').focus(); }
     });
   });
 
   // Elke regel: naam + e-mail en/of telefoon, in willekeurige volgorde.
   function parseLine(line) {
     var parts = line.split(/\t|;|,/).map(function (p) { return p.trim(); }).filter(Boolean);
-    var g = { naam: '', email: '', telefoon: '' }, rest = [];
+    var g = { naam: '', naam2: '', email: '', telefoon: '' }, rest = [];
     parts.forEach(function (p) {
       if (!g.email && /@/.test(p)) g.email = p;
       else if (!g.telefoon && /^[+()\d][\d\s()+-]{7,}$/.test(p)) g.telefoon = p;
       else rest.push(p);
     });
-    g.naam = rest.join(' ');
+    if (rest.length >= 2) { g.naam = rest[0]; g.naam2 = rest.slice(1).join(' '); }
+    else {
+      // "Rogier en Sanne" of "Rogier & Sanne" in één kolom
+      var m = (rest[0] || '').split(/\s+(?:en|&)\s+/i);
+      g.naam = m[0] || ''; g.naam2 = m.slice(1).join(' en ');
+    }
     return g;
   }
   $('bulkBtn').addEventListener('click', function () {
@@ -264,10 +286,12 @@
   function fillTemplate() {
     $('tplSubject').value = G.settings.subject || '';
     $('tplText').value = G.settings.template || '';
+    $('tplSubjectDuo').value = G.settings.subjectDuo || '';
+    $('tplTextDuo').value = G.settings.templateDuo || '';
   }
   $('tplForm').addEventListener('submit', function (e) {
     e.preventDefault();
-    api('/api/admin/guests', { method: 'POST', body: { action: 'settings', subject: $('tplSubject').value, template: $('tplText').value } })
+    api('/api/admin/guests', { method: 'POST', body: { action: 'settings', subject: $('tplSubject').value, template: $('tplText').value, subjectDuo: $('tplSubjectDuo').value, templateDuo: $('tplTextDuo').value } })
       .then(function (j) { G.settings = j.settings; fillTemplate(); renderGuests(); showResult('tplResult', 'Opgeslagen.'); })
       .catch(function (x) { if (x.message !== 'login') showResult('tplResult', x.message, true); });
   });
@@ -288,8 +312,7 @@
     $('sTotal').textContent = ms.length;
     $('sNew').textContent = ms.filter(isNew).length;
     $('sFoto').textContent = ms.filter(function (m) { return m.hasFoto; }).length;
-    var songs = ms.filter(function (m) { return m.liedje; });
-    $('sSongs').textContent = songs.length;
+    $('sFavs').textContent = ms.filter(function (m) { return data.state.favs[m.id]; }).length;
 
     var list = visible();
     $('grid').innerHTML = list.length ? list.map(function (m) {
@@ -304,12 +327,6 @@
         (m.liedje ? '<p class="msg-song">' + NOTE + esc(m.liedje) + '</p>' : '') +
         '</article>';
     }).join('') : '<p class="empty">' + (ms.length ? 'Geen berichten gevonden.' : 'Nog geen berichten. Zodra gasten iets achterlaten, verschijnt het hier.') + '</p>';
-
-    $('songs').innerHTML = songs.map(function (m) {
-      return '<li>' + esc(m.liedje) + '<small>van ' + esc(m.naam) + '</small></li>';
-    }).join('');
-    $('songsEmpty').hidden = songs.length > 0;
-    $('copySongs').hidden = songs.length === 0;
   }
 
   $('grid').addEventListener('click', function (e) {
@@ -342,13 +359,6 @@
   });
   $('markReadBtn').addEventListener('click', function () {
     api('/api/admin/state', { method: 'POST', body: { markRead: true } }).then(function (j) { data.state = j.state; render(); }).catch(function () {});
-  });
-  $('copySongs').addEventListener('click', function () {
-    var txt = data.messages.filter(function (m) { return m.liedje; }).map(function (m) { return m.liedje; }).join('\n');
-    navigator.clipboard.writeText(txt).then(function () {
-      $('copySongs').textContent = 'Gekopieerd!';
-      setTimeout(function () { $('copySongs').textContent = 'Kopieer lijst voor de DJ'; }, 1800);
-    });
   });
 
   /* ---------- Boekje (PDF via printen) ---------- */

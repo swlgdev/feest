@@ -85,13 +85,14 @@
           <h2 class="accent">Gast toevoegen</h2>
           <form id="addOne" class="stack">
             <div class="field"><label for="aNaam">Naam</label><input id="aNaam" type="text" maxlength="80" required></div>
+            <div class="field"><label for="aNaam2">Tweede naam <span class="hint">(bij een stel, optioneel)</span></label><input id="aNaam2" type="text" maxlength="80"></div>
             <div class="field"><label for="aMail">E-mail</label><input id="aMail" type="email" maxlength="160" inputmode="email"></div>
             <div class="field"><label for="aTel">Telefoon (voor WhatsApp)</label><input id="aTel" type="tel" maxlength="40" placeholder="06 12345678"></div>
             <button type="submit" class="btn-primary">Toevoegen</button>
           </form>
           <details class="bulk">
             <summary>Of plak een hele lijst</summary>
-            <p class="hint">Eén gast per regel: naam, e-mail en/of telefoon. Gescheiden door een komma, puntkomma of tab, dus je kunt kolommen direct uit Excel plakken.</p>
+            <p class="hint">Eén gast of stel per regel: naam (en eventueel tweede naam), e-mail en/of telefoon. Gescheiden door een komma, puntkomma of tab, dus je kunt kolommen direct uit Excel plakken. Een stel mag ook als "Rogier en Sanne" of "Rogier &amp; Sanne".</p>
             <label for="bulkText" class="visually-hidden">Lijst met gasten</label>
             <textarea id="bulkText" rows="6" placeholder="Familie Jansen; jansen@voorbeeld.nl; 06 12345678&#10;Sanne de Vries, 0612345679"></textarea>
             <button type="button" class="btn-primary" id="bulkBtn">Lijst toevoegen</button>
@@ -103,8 +104,12 @@
           <details id="tplBox">
             <summary class="sum-title">Uitnodigingstekst</summary>
             <form id="tplForm" class="stack">
+              <p class="tpl-head">Voor één persoon</p>
               <div class="field"><label for="tplSubject">Onderwerp (voor e-mail)</label><input id="tplSubject" type="text" maxlength="200"></div>
               <div class="field"><label for="tplText">Bericht</label><textarea id="tplText" rows="11" maxlength="4000"></textarea></div>
+              <p class="tpl-head">Voor een stel (twee namen)</p>
+              <div class="field"><label for="tplSubjectDuo">Onderwerp (voor e-mail)</label><input id="tplSubjectDuo" type="text" maxlength="200"></div>
+              <div class="field"><label for="tplTextDuo">Bericht</label><textarea id="tplTextDuo" rows="11" maxlength="4000"></textarea></div>
               <p class="hint"><strong>{naam}</strong> en <strong>{link}</strong> worden per gast automatisch ingevuld. In de mail wordt {link} een knop "Klik hier om je uitnodiging te openen"; in WhatsApp blijft het een link met een voorbeeldplaatje.</p>
               <button type="submit" class="btn-primary">Tekst opslaan</button>
               <p class="result" id="tplResult" role="status" hidden></p>
@@ -121,7 +126,7 @@
       <div class="stat"><p>Berichten</p><strong id="sTotal">0</strong></div>
       <div class="stat"><p>Nieuw sinds "gelezen"</p><strong id="sNew">0</strong></div>
       <div class="stat"><p>Met foto</p><strong id="sFoto">0</strong></div>
-      <div class="stat dark"><p>Verzoeknummers</p><strong id="sSongs">0</strong></div>
+      <div class="stat dark"><p>Favorieten</p><strong id="sFavs">0</strong></div>
     </div>
 
     <div class="toolbar">
@@ -141,12 +146,6 @@
     <div class="layout">
       <section class="grid" id="grid" aria-label="Berichten" aria-live="polite"></section>
       <aside class="side">
-        <section class="panel dark">
-          <h2>Verzoeknummers</h2>
-          <ol id="songs"></ol>
-          <p class="empty-small" id="songsEmpty">Nog geen verzoeknummers.</p>
-          <button type="button" class="btn-line" id="copySongs">Kopieer lijst voor de DJ</button>
-        </section>
         <section class="panel">
           <h2 class="accent">Feestavond</h2>
           <p>Zet de favoriete berichten (of alle, als er nog geen favorieten zijn) als diavoorstelling op een scherm.</p>

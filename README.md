@@ -31,10 +31,9 @@ Berichten en foto's staan in een **privé** Vercel Blob store; alleen de serverf
 | `ADMIN_PASSWORD` | Wachtwoord voor `/admin` |
 | `SESSION_SECRET` | Willekeurige lange string om de inlog-cookie te ondertekenen |
 
-## Nog in te vullen
+## Betaling
 
-- **Betaallink:** zet de echte link in `BETAAL_URL` bovenin `public/app.js`.
-- **QR-code:** vervang `public/assets/qr-demo.png` door de QR-code van de betaallink.
+De betaallink (Rabobank-betaalverzoek) staat in `BETAAL_URL` bovenin `public/app.js` en als href van de knop in `public/index.html`; de QR-code is `public/assets/qr-betaling.png`.
 
 ## Lokaal draaien
 

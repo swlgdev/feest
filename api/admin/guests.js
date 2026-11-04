@@ -43,13 +43,14 @@ export default async function handler(req, res) {
       const added = [], skipped = [];
       for (const raw of input) {
         const naam = clean(raw.naam, 80);
+        const naam2 = clean(raw.naam2, 80);
         const email = normEmail(raw.email);
         const telefoon = clean(raw.telefoon, 40);
         if (!naam || (!email && !telefoon)) { skipped.push({ naam, reden: 'naam en e-mail of telefoon nodig' }); continue; }
         if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { skipped.push({ naam, reden: 'e-mailadres klopt niet' }); continue; }
         if ((email && emails.has(email)) || (telefoon && phones.has(normPhone(telefoon)))) { skipped.push({ naam, reden: 'staat al in de lijst' }); continue; }
         const guest = {
-          token: newToken(), naam, email: email || '', telefoon,
+          token: newToken(), naam, naam2, email: email || '', telefoon,
           createdAt: new Date().toISOString(), sentAt: null, sentVia: null,
           openedAt: null, lastOpenedAt: null, opens: 0
         };
@@ -71,6 +72,7 @@ export default async function handler(req, res) {
         guest.sentVia = Array.from(new Set([].concat(guest.sentVia || [], clean(b.via, 20)).filter(Boolean)));
       } else {
         if (b.naam !== undefined) guest.naam = clean(b.naam, 80) || guest.naam;
+        if (b.naam2 !== undefined) guest.naam2 = clean(b.naam2, 80);
         if (b.email !== undefined) guest.email = normEmail(b.email);
         if (b.telefoon !== undefined) guest.telefoon = clean(b.telefoon, 40);
         if (b.resetSent) { guest.sentAt = null; guest.sentVia = null; }
@@ -80,8 +82,11 @@ export default async function handler(req, res) {
     }
 
     if (b.action === 'settings') {
-      const settings = { template: clean(b.template, 4000), subject: clean(b.subject, 200) };
-      if (!settings.template.includes('{link}')) {
+      const settings = {
+        template: clean(b.template, 4000), subject: clean(b.subject, 200),
+        templateDuo: clean(b.templateDuo, 4000), subjectDuo: clean(b.subjectDuo, 200)
+      };
+      if (!settings.template.includes('{link}') || (settings.templateDuo && !settings.templateDuo.includes('{link}'))) {
         return res.status(400).json({ error: 'Zet {link} in de tekst, anders krijgt de gast geen link.' });
       }
       await writeSettings(settings);
