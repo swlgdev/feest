@@ -109,7 +109,7 @@ p{margin:0}
 .music{position:relative;display:flex;flex-direction:column;gap:12px;padding:18px 16px 16px;border:1px solid var(--gold);border-radius:12px;background:var(--bg);overflow:hidden}
 .music-top{display:flex;gap:14px;align-items:center}
 .mic{flex-shrink:0}
-.music h3{margin:2px 0 4px;font-style:italic;font-size:26px;line-height:1.15;color:var(--accent)}
+.music h3{margin:0;font-style:italic;font-size:34px;line-height:1.1;color:var(--accent)}
 .music .caps.small{font-size:13px;letter-spacing:.26em}
 .music-bottom{display:flex;align-items:flex-end;gap:12px}
 .vinyl{width:44px;height:44px;flex-shrink:0}
