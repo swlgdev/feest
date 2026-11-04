@@ -18,6 +18,17 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
       const [guests, settings] = await Promise.all([listGuests(), readSettings()]);
+      // Eenmalig: gasten van vóór de voornaam/achternaam-splitsing omzetten,
+      // zodat de aanhef alleen de voornaam gebruikt ("Lieve Frans," i.p.v. "Lieve Frans Vale,").
+      const oud = guests.filter((g) => g.achternaam === undefined);
+      for (const g of oud) {
+        const full = String(g.naam || '').trim();
+        const i = full.indexOf(' ');
+        if (/^(fam\.?|familie)\s/i.test(full) || i < 0) g.achternaam = '';
+        else { g.naam = full.slice(0, i); g.achternaam = full.slice(i + 1); }
+        if (g.naam2 && g.naam2.trim().includes(' ') && !/^(fam\.?|familie)\s/i.test(g.naam2.trim())) g.naam2 = g.naam2.trim().split(/\s+/)[0];
+        await writeGuest(g);
+      }
       return res.status(200).json({ guests, settings, baseUrl: baseUrl(req) });
     }
 
@@ -44,13 +55,14 @@ export default async function handler(req, res) {
       for (const raw of input) {
         const naam = clean(raw.naam, 80);
         const naam2 = clean(raw.naam2, 80);
+        const achternaam = clean(raw.achternaam, 80);
         const email = normEmail(raw.email);
         const telefoon = clean(raw.telefoon, 40);
         if (!naam || (!email && !telefoon)) { skipped.push({ naam, reden: 'naam en e-mail of telefoon nodig' }); continue; }
         if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { skipped.push({ naam, reden: 'e-mailadres klopt niet' }); continue; }
         if ((email && emails.has(email)) || (telefoon && phones.has(normPhone(telefoon)))) { skipped.push({ naam, reden: 'staat al in de lijst' }); continue; }
         const guest = {
-          token: newToken(), naam, naam2, email: email || '', telefoon,
+          token: newToken(), naam, achternaam, naam2, email: email || '', telefoon,
           createdAt: new Date().toISOString(), sentAt: null, sentVia: null,
           openedAt: null, lastOpenedAt: null, opens: 0
         };
@@ -73,6 +85,7 @@ export default async function handler(req, res) {
       } else {
         if (b.naam !== undefined) guest.naam = clean(b.naam, 80) || guest.naam;
         if (b.naam2 !== undefined) guest.naam2 = clean(b.naam2, 80);
+        if (b.achternaam !== undefined) guest.achternaam = clean(b.achternaam, 80);
         if (b.email !== undefined) guest.email = normEmail(b.email);
         if (b.telefoon !== undefined) guest.telefoon = clean(b.telefoon, 40);
         if (b.resetSent) { guest.sentAt = null; guest.sentVia = null; }

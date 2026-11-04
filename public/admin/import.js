@@ -122,7 +122,8 @@
 
   /* ---------- Rijen naar gasten ---------- */
   var HEAD = {
-    naam: /^(naam|name|gast|gasten|naam gast|voornaam|first ?name|roepnaam)$/,
+    naam: /^(naam|name|gast|gasten|naam gast|volledige naam|full ?name)$/,
+    voornaam: /^(voornaam|first ?name|roepnaam)$/,
     achternaam: /^(achternaam|last ?name|surname|familienaam)$/,
     naam2: /(tweede naam|partner|naam ?2|introduc[eé]|aanhang|\+ ?1)/,
     email: /(e-?mail|mail ?adres|^mail$)/,
@@ -139,13 +140,36 @@
     if (/^316\d{8}$/.test(digits) && !/^[+0]/.test(s)) return '+' + digits;
     return s;
   }
-  function splitCouple(g) {
-    if (!g.naam2) {
-      var m = g.naam.split(/\s+(?:en|&|\+)\s+/i);
-      if (m.length > 1) { g.naam = m[0]; g.naam2 = m.slice(1).join(' en '); }
-    }
-    return g;
+  // "Frans Vale" -> voornaam Frans, achternaam Vale. "Familie de Vries" blijft heel.
+  function splitName(full) {
+    full = String(full || '').trim().replace(/\s+/g, ' ');
+    if (!full) return { voornaam: '', achternaam: '' };
+    if (/^(fam\.?|familie)\s/i.test(full)) return { voornaam: full, achternaam: '' };
+    var i = full.indexOf(' ');
+    return i < 0 ? { voornaam: full, achternaam: '' } : { voornaam: full.slice(0, i), achternaam: full.slice(i + 1) };
   }
+  var PLACEHOLDER = /^(partner|partner\?|introduc[eé]e?|aanhang|\+ ?1|ja|x)$/i;
+  // Partner: alleen de voornaam (die staat in de aanhef), of de tekst "partner" als de naam onbekend is.
+  function partnerName(v) {
+    v = String(v || '').trim();
+    if (!v) return '';
+    if (PLACEHOLDER.test(v)) return 'partner';
+    return splitName(v).voornaam;
+  }
+  function build(full, voornaam, achternaam, partner, email, telefoon) {
+    var naam2 = partner;
+    if (!voornaam) {
+      // "Peter en Ans Jansen" of "Peter & Ans" in één cel
+      var m = String(full || '').split(/\s+(?:en|&|\+)\s+/i);
+      if (m.length > 1 && !naam2) { full = m[0]; naam2 = m.slice(1).join(' en '); }
+      var sp = splitName(full);
+      voornaam = sp.voornaam; achternaam = achternaam || sp.achternaam;
+      // "Peter en Ans Jansen": de achternaam staat dan achter de partner
+      if (m.length > 1 && !achternaam) { var ps = splitName(naam2); if (ps.achternaam) achternaam = ps.achternaam; }
+    }
+    return { naam: voornaam, achternaam: achternaam || '', naam2: partnerName(naam2), email: email, telefoon: fixPhone(telefoon) };
+  }
+  var TOTAL = /^(totaal|total|som|subtotaal|aantal)\b/i;
 
   function rowsToGuests(rows) {
     rows = rows.filter(function (r) { return r.some(function (c) { return String(c || '').trim(); }); });
@@ -157,16 +181,16 @@
       if (!h || /@/.test(h) || /\d{3,}/.test(h)) return;
       Object.keys(HEAD).forEach(function (k) { if (map[k] === undefined && HEAD[k].test(h)) map[k] = i; });
     });
-    var hasHeader = map.naam !== undefined || map.email !== undefined || map.telefoon !== undefined;
+    var hasHeader = map.naam !== undefined || map.voornaam !== undefined || map.email !== undefined || map.telefoon !== undefined;
 
+    var out;
     if (hasHeader) {
-      return rows.slice(1).map(function (r) {
+      out = rows.slice(1).map(function (r) {
         var get = function (k) { return map[k] === undefined ? '' : String(r[map[k]] || '').trim(); };
-        var naam = get('naam');
-        if (get('achternaam')) naam = (naam + ' ' + get('achternaam')).trim();
-        return splitCouple({ naam: naam, naam2: get('naam2'), email: get('email'), telefoon: fixPhone(get('telefoon')) });
+        return build(get('naam'), get('voornaam'), get('achternaam'), get('naam2'), get('email'), get('telefoon'));
       });
-    }
+    } else out = null;
+    if (out) return out.filter(function (g) { return !TOTAL.test(g.naam); });
     // Geen kopregel: per regel raden wat wat is.
     return rows.map(function (r) {
       var g = { naam: '', naam2: '', email: '', telefoon: '' }, rest = [];
@@ -176,9 +200,8 @@
         else if (!g.telefoon && isPhone(fixPhone(c))) g.telefoon = fixPhone(c);
         else rest.push(c);
       });
-      g.naam = rest[0] || ''; g.naam2 = rest.slice(1).join(' ');
-      return splitCouple(g);
-    });
+      return build(rest[0] || '', '', '', rest.slice(1).join(' '), g.email, g.telefoon);
+    }).filter(function (g) { return !TOTAL.test(g.naam); });
   }
 
   async function readFile(file) {
@@ -190,6 +213,7 @@
   }
 
   window.JMImport = {
+    splitName: splitName, PLACEHOLDER: PLACEHOLDER,
     readFile: readFile,
     parseText: function (text) { return rowsToGuests(readDelimited(text)); },
     _rowsToGuests: rowsToGuests, _readXlsx: readXlsx

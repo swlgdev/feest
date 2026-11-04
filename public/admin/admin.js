@@ -81,8 +81,14 @@
   var LINK_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>';
 
   function guestLink(g) { return G.baseUrl + '/i/' + g.token; }
+  var PH = /^(partner|partner\?|introduc[eé]e?|aanhang|\+ ?1|ja|x)$/i;
   function isDuo(g) { return !!(g.naam2 && g.naam2.trim()); }
-  function namen(g) { return isDuo(g) ? g.naam + ' en ' + g.naam2 : g.naam; }
+  // Aanhef: alleen voornamen. Onbekende partner ("partner") -> alleen de voornaam van de gast.
+  function namen(g) { return isDuo(g) && !PH.test(g.naam2.trim()) ? g.naam + ' en ' + g.naam2 : g.naam; }
+  function volledigeNaam(g) {
+    var n = (g.naam + (g.achternaam ? ' ' + g.achternaam : '')).trim();
+    return isDuo(g) ? n + ' & ' + (PH.test(g.naam2.trim()) ? 'partner' : g.naam2) : n;
+  }
   function tplFor(g) { return (isDuo(g) ? G.settings.templateDuo : G.settings.template) || ''; }
   function subjectFor(g) { return (isDuo(g) ? G.settings.subjectDuo : G.settings.subject) || ''; }
   function guestText(g) {
@@ -142,7 +148,7 @@
         'text/plain': new Blob([plain], { type: 'text/plain' })
       });
       navigator.clipboard.write([item]).then(function () {
-        toast('De opgemaakte mail voor ' + namen(g) + ' staat klaar. Klik in je mail in het tekstvak en plak (Ctrl+V of Cmd+V; op je telefoon: lang drukken en Plakken).');
+        toast('De opgemaakte mail voor ' + volledigeNaam(g) + ' staat klaar. Klik in je mail in het tekstvak en plak (Ctrl+V of Cmd+V; op je telefoon: lang drukken en Plakken).');
         open(false);
       }, function () { open(true); });
     } catch (e) {
@@ -158,7 +164,7 @@
       if (gFilter === 'nietverstuurd' && g.sentAt) return false;
       if (gFilter === 'nietgeopend' && g.openedAt) return false;
       if (gFilter === 'geopend' && !g.openedAt) return false;
-      if (q && (g.naam + ' ' + (g.naam2 || '') + ' ' + g.email + ' ' + g.telefoon).toLowerCase().indexOf(q) < 0) return false;
+      if (q && (g.naam + ' ' + (g.achternaam || '') + ' ' + (g.naam2 || '') + ' ' + g.email + ' ' + g.telefoon).toLowerCase().indexOf(q) < 0) return false;
       return true;
     });
   }
@@ -178,7 +184,7 @@
       if (!g.sentAt && !g.openedAt) chips += '<span class="chip">Nog niet verstuurd</span>';
       var contact = [g.email, g.telefoon].filter(Boolean).map(esc).join(' · ');
       return '<article class="guest">' +
-        '<div class="guest-main"><h3 class="guest-name">' + esc(namen(g)) + '</h3><p class="guest-contact">' + contact + '</p><div class="chips">' + chips + '</div></div>' +
+        '<div class="guest-main"><h3 class="guest-name">' + esc(volledigeNaam(g)) + '</h3><p class="guest-contact">' + contact + '</p><div class="chips">' + chips + '</div></div>' +
         '<div class="guest-actions">' +
         (g.telefoon ? '<a class="act wa" target="_blank" rel="noopener" href="' + esc(waHref(g)) + '" data-sent="' + g.token + '" data-via="WhatsApp">' + WA_ICON + 'WhatsApp</a>' : '') +
         (g.email ? '<button type="button" class="act mail" data-mail="' + g.token + '">' + MAIL_ICON + 'Mail</button>' : '') +
@@ -198,10 +204,11 @@
     if (edit) {
       var eg = G.guests.find(function (x) { return x.token === edit.getAttribute('data-edit'); });
       if (!eg) return;
-      var n1 = prompt('Naam', eg.naam); if (n1 === null) return;
-      var n2 = prompt('Tweede naam (bij een stel, laat leeg bij één persoon)', eg.naam2 || ''); if (n2 === null) return;
+      var n1 = prompt('Voornaam (staat in de aanhef)', eg.naam); if (n1 === null) return;
+      var na = prompt('Achternaam', eg.achternaam || ''); if (na === null) return;
+      var n2 = prompt('Partner: voornaam, of "partner" als de naam onbekend is. Leeg laten bij één persoon.', eg.naam2 || ''); if (n2 === null) return;
       if (!n1.trim()) return;
-      api('/api/admin/guests', { method: 'POST', body: { action: 'update', token: eg.token, naam: n1, naam2: n2 } }).then(function (j) {
+      api('/api/admin/guests', { method: 'POST', body: { action: 'update', token: eg.token, naam: n1, achternaam: na, naam2: n2 } }).then(function (j) {
         Object.assign(eg, j.guest); renderGuests();
       }).catch(function (x) { if (x.message !== 'login') alert(x.message); });
     }
@@ -220,7 +227,7 @@
     if (del) {
       var dt = del.getAttribute('data-delguest');
       var dg = G.guests.find(function (x) { return x.token === dt; });
-      if (!confirm((dg ? namen(dg) : 'Deze gast') + ' verwijderen? De persoonlijke link werkt dan niet meer.')) return;
+      if (!confirm((dg ? volledigeNaam(dg) : 'Deze gast') + ' verwijderen? De persoonlijke link werkt dan niet meer.')) return;
       api('/api/admin/guests?token=' + encodeURIComponent(dt), { method: 'DELETE' }).then(function () {
         G.guests = G.guests.filter(function (x) { return x.token !== dt; });
         renderGuests();
@@ -253,10 +260,10 @@
 
   $('addOne').addEventListener('submit', function (e) {
     e.preventDefault();
-    var naam = $('aNaam').value.trim(), naam2 = $('aNaam2').value.trim(), email = $('aMail').value.trim(), tel = $('aTel').value.trim();
-    if (!naam || (!email && !tel)) { showResult('addResult', 'Vul een naam in en een e-mailadres of telefoonnummer.', true); return; }
-    addGuests([{ naam: naam, naam2: naam2, email: email, telefoon: tel }], function (j) {
-      if (j.added.length) { $('aNaam').value = ''; $('aNaam2').value = ''; $('aMail').value = ''; $('aTel').value = ''; $('aNaam').focus(); }
+    var naam = $('aNaam').value.trim(), achternaam = $('aAchternaam').value.trim(), naam2 = $('aNaam2').value.trim(), email = $('aMail').value.trim(), tel = $('aTel').value.trim();
+    if (!naam || (!email && !tel)) { showResult('addResult', 'Vul een voornaam in en een e-mailadres of telefoonnummer.', true); return; }
+    addGuests([{ naam: naam, achternaam: achternaam, naam2: naam2, email: email, telefoon: tel }], function (j) {
+      if (j.added.length) { $('aNaam').value = ''; $('aAchternaam').value = ''; $('aNaam2').value = ''; $('aMail').value = ''; $('aTel').value = ''; $('aNaam').focus(); }
     });
   });
 
@@ -271,7 +278,7 @@
     R.forEach(function (r) {
       var e = r.email.trim().toLowerCase(), t = r.telefoon.trim() ? waNumber(r.telefoon) : '';
       r.err = '';
-      if (!r.naam.trim()) r.err = 'Naam ontbreekt';
+      if (!r.naam.trim()) r.err = 'Voornaam ontbreekt';
       else if (!e && !t) r.err = 'Geen e-mail of telefoon';
       else if (e && !EMAIL_RE.test(e)) r.err = 'E-mailadres klopt niet';
       else if (t && t.length < 9) r.err = 'Telefoonnummer klopt niet';
@@ -291,19 +298,19 @@
     $('reviewOk').textContent = ok ? 'Akkoord, ' + ok + (ok === 1 ? ' uitnodiging' : ' uitnodigingen') + ' toevoegen' : 'Niets om toe te voegen';
     $('reviewOk').disabled = !ok;
     $('reviewBody').innerHTML = R.map(function (r, i) {
-      var duo = r.naam2.trim() ? ' (stel)' : '';
+      var duo = r.naam2.trim() ? ' (met partner)' : '';
       var st = r.err ? '<span class="status ' + (r.err === 'Staat al in de lijst' || r.err.indexOf('Dubbel') === 0 ? 'warn' : 'bad') + '">' + esc(r.err) + '</span>'
                      : '<span class="status ok">Klaar' + duo + '</span>';
       var inp = function (k, label) { return '<td><input type="text" data-i="' + i + '" data-k="' + k + '" value="' + esc(r[k]) + '" aria-label="' + label + ' regel ' + (i + 1) + '"></td>'; };
       return '<tr class="' + (r.on && !r.err ? '' : 'skip') + '">' +
         '<td><input type="checkbox" data-i="' + i + '"' + (r.on && !r.err ? ' checked' : '') + (r.err ? ' disabled' : '') + ' aria-label="Regel ' + (i + 1) + ' toevoegen"></td>' +
         '<td>' + st + '</td>' +
-        inp('naam', 'Naam') + inp('naam2', 'Tweede naam') + inp('email', 'E-mail') + inp('telefoon', 'Telefoon') + '</tr>';
+        inp('naam', 'Voornaam') + inp('achternaam', 'Achternaam') + inp('naam2', 'Partner') + inp('email', 'E-mail') + inp('telefoon', 'Telefoon') + '</tr>';
     }).join('');
   }
 
   function openReview(list, bron) {
-    R = list.map(function (g) { return { naam: g.naam || '', naam2: g.naam2 || '', email: g.email || '', telefoon: g.telefoon || '', on: true, touched: false }; });
+    R = list.map(function (g) { return { naam: g.naam || '', achternaam: g.achternaam || '', naam2: g.naam2 || '', email: g.email || '', telefoon: g.telefoon || '', on: true, touched: false }; });
     if (!R.length) { showResult('addResult', 'Er staan geen gasten in ' + bron + '.', true); return; }
     showResult('addResult', '');
     $('review').hidden = false;
@@ -326,7 +333,7 @@
   $('reviewCancel').addEventListener('click', function () { closeReview(); showResult('addResult', 'Import geannuleerd, er is niets toegevoegd.'); });
   $('reviewOk').addEventListener('click', function () {
     var list = R.filter(function (r) { return r.on && !r.err; }).map(function (r) {
-      return { naam: r.naam.trim(), naam2: r.naam2.trim(), email: r.email.trim(), telefoon: r.telefoon.trim() };
+      return { naam: r.naam.trim(), achternaam: r.achternaam.trim(), naam2: r.naam2.trim(), email: r.email.trim(), telefoon: r.telefoon.trim() };
     });
     if (!list.length) return;
     $('reviewOk').disabled = true; $('reviewOk').textContent = 'Bezig met toevoegen...';

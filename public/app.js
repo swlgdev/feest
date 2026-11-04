@@ -166,8 +166,10 @@
   /* ---------- Persoonlijke begroeting ---------- */
   fetch('/api/me', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
     if (!j || !j.naam) return;
-    var duo = !!j.naam2;
-    var namen = duo ? j.naam + ' en ' + j.naam2 : j.naam;
+    // Met partner -> "jullie"-tekst. Is de naam van de partner onbekend ("partner"), dan alleen de voornaam van de gast.
+    var duo = !!(j.naam2 && String(j.naam2).trim());
+    var onbekend = duo && /^(partner|partner\?|introduc[eé]e?|aanhang|\+ ?1|ja|x)$/i.test(String(j.naam2).trim());
+    var namen = duo && !onbekend ? j.naam + ' en ' + j.naam2 : j.naam;
     $('greeting').textContent = 'Lieve ' + namen + ',';
     $('welkomTekst').textContent = duo
       ? 'Ontzettend leuk dat jullie erbij zijn om samen met ons onze 40e en 50e verjaardag te vieren! We kijken er enorm naar uit om er met familie en vrienden een bijzondere en feestelijke avond van te maken.'

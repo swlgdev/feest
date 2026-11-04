@@ -79,7 +79,7 @@
           <p class="hint">Pas namen of gegevens direct in de tabel aan. Alleen aangevinkte regels worden toegevoegd.</p>
           <div class="review-scroll">
             <table class="review-table">
-              <thead><tr><th scope="col"><span class="visually-hidden">Toevoegen</span></th><th scope="col">Controle</th><th scope="col">Naam</th><th scope="col">Tweede naam</th><th scope="col">E-mail</th><th scope="col">Telefoon</th></tr></thead>
+              <thead><tr><th scope="col"><span class="visually-hidden">Toevoegen</span></th><th scope="col">Controle</th><th scope="col">Voornaam</th><th scope="col">Achternaam</th><th scope="col">Partner</th><th scope="col">E-mail</th><th scope="col">Telefoon</th></tr></thead>
               <tbody id="reviewBody"></tbody>
             </table>
           </div>
@@ -103,8 +103,9 @@
         <section class="panel">
           <h2 class="accent">Gast toevoegen</h2>
           <form id="addOne" class="stack">
-            <div class="field"><label for="aNaam">Naam</label><input id="aNaam" type="text" maxlength="80" required></div>
-            <div class="field"><label for="aNaam2">Tweede naam <span class="hint">(bij een stel, optioneel)</span></label><input id="aNaam2" type="text" maxlength="80"></div>
+            <div class="field"><label for="aNaam">Voornaam</label><input id="aNaam" type="text" maxlength="80" required></div>
+            <div class="field"><label for="aAchternaam">Achternaam</label><input id="aAchternaam" type="text" maxlength="80"></div>
+            <div class="field"><label for="aNaam2">Partner <span class="hint">(voornaam, optioneel)</span></label><input id="aNaam2" type="text" maxlength="80"></div>
             <div class="field"><label for="aMail">E-mail</label><input id="aMail" type="email" maxlength="160" inputmode="email"></div>
             <div class="field"><label for="aTel">Telefoon (voor WhatsApp)</label><input id="aTel" type="tel" maxlength="40" placeholder="06 12345678"></div>
             <button type="submit" class="btn-primary">Toevoegen</button>
@@ -116,10 +117,10 @@
               Kies een Excel-bestand
             </label>
             <input id="importFile" type="file" accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" class="visually-hidden">
-            <p class="hint">Excel (.xlsx) of CSV, met kolommen zoals <strong>Naam</strong>, <strong>Tweede naam</strong>, <strong>E-mail</strong> en <strong>Telefoon</strong>. Je controleert de lijst eerst voordat er iets wordt toegevoegd. <a href="/admin/voorbeeld-gastenlijst.xlsx" download>Download een voorbeeldbestand</a>.</p>
+            <p class="hint">Excel (.xlsx) of CSV, met kolommen zoals <strong>Naam</strong> (of <strong>Voornaam</strong> en <strong>Achternaam</strong>), <strong>Partner</strong>, <strong>E-mail</strong> en <strong>Telefoon</strong>. Je controleert de lijst eerst voordat er iets wordt toegevoegd. <a href="/admin/voorbeeld-gastenlijst.xlsx" download>Download een voorbeeldbestand</a>.</p>
             <details class="bulk">
               <summary>Of plak een lijst</summary>
-              <p class="hint">Eén gast of stel per regel: naam (en eventueel tweede naam), e-mail en/of telefoon, gescheiden door een komma, puntkomma of tab. Een stel mag ook als "Rogier en Sanne".</p>
+              <p class="hint">Eén gast of stel per regel: naam (en eventueel partner), e-mail en/of telefoon, gescheiden door een komma, puntkomma of tab. Een stel mag ook als "Rogier en Sanne".</p>
               <label for="bulkText" class="visually-hidden">Lijst met gasten</label>
               <textarea id="bulkText" rows="6" placeholder="Familie Jansen; jansen@voorbeeld.nl; 06 12345678&#10;Rogier en Sanne, 0612345679"></textarea>
               <button type="button" class="btn-primary" id="bulkBtn">Controleer lijst</button>
@@ -135,10 +136,10 @@
               <p class="tpl-head">Voor één persoon</p>
               <div class="field"><label for="tplSubject">Onderwerp (voor e-mail)</label><input id="tplSubject" type="text" maxlength="200"></div>
               <div class="field"><label for="tplText">Bericht</label><textarea id="tplText" rows="11" maxlength="4000"></textarea></div>
-              <p class="tpl-head">Voor een stel (twee namen)</p>
+              <p class="tpl-head">Voor een stel (met partner)</p>
               <div class="field"><label for="tplSubjectDuo">Onderwerp (voor e-mail)</label><input id="tplSubjectDuo" type="text" maxlength="200"></div>
               <div class="field"><label for="tplTextDuo">Bericht</label><textarea id="tplTextDuo" rows="11" maxlength="4000"></textarea></div>
-              <p class="hint"><strong>{naam}</strong> en <strong>{link}</strong> worden per gast automatisch ingevuld. In de mail wordt {link} een knop "Klik hier om je uitnodiging te openen"; in WhatsApp blijft het een link met een voorbeeldplaatje.</p>
+              <p class="hint"><strong>{naam}</strong> (alleen de voornaam, of "Rogier en Sanne") en <strong>{link}</strong> worden per gast automatisch ingevuld. In de mail wordt {link} een knop "Klik hier om je uitnodiging te openen"; in WhatsApp blijft het een link met een voorbeeldplaatje.</p>
               <button type="submit" class="btn-primary">Tekst opslaan</button>
               <p class="result" id="tplResult" role="status" hidden></p>
             </form>
