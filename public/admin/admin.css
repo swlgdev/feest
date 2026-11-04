@@ -98,6 +98,32 @@ button{font-family:var(--body);cursor:pointer}
 .bulk summary,#tplBox summary{cursor:pointer;color:var(--accent);font-size:16px}
 #tplBox summary.sum-title{font-family:var(--serif);font-weight:600;font-size:14px;letter-spacing:.26em;text-transform:uppercase}
 #tplBox[open] summary{margin-bottom:12px}
+.import{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px}
+.import-title{font-weight:500}
+.file-btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;border:1.5px dashed var(--accent);border-radius:10px;color:var(--accent);background:#fff;cursor:pointer;font-size:16px}
+.file-btn:hover{background:#FBF1EF}
+.import input:focus-visible + .hint,.file-btn:focus-within{outline:2px solid var(--accent)}
+
+.review{scroll-margin-top:68px;background:var(--card);border:2px solid var(--gold);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.review-head{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:12px}
+.review h2{margin:0;font-family:var(--serif);font-weight:700;font-size:24px;color:var(--accent)}
+.review-actions{display:flex;gap:8px;flex-wrap:wrap}
+.review-actions .btn-primary{width:auto;padding:0 20px;min-height:46px;font-size:16px}
+.review-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:#fff;max-height:60vh;overflow-y:auto}
+.review-table{width:100%;border-collapse:collapse;font-size:15px}
+.review-table th{position:sticky;top:0;background:#F6EEE3;text-align:left;font-weight:500;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap;z-index:1}
+.review-table td{padding:4px 6px;border-bottom:1px solid #F0E6D8;vertical-align:middle}
+.review-table tr.skip td{background:#FBF4F2}
+.review-table tr.skip input[type=text]{color:var(--muted)}
+.review-table input[type=text]{width:100%;min-width:120px;height:36px;padding:0 8px;border:1px solid transparent;border-radius:6px;background:transparent;font-family:var(--body);font-size:15px;color:var(--ink)}
+.review-table input[type=text]:hover{border-color:var(--line)}
+.review-table input[type=text]:focus{border-color:#A8927A;background:#fff;outline:none}
+.review-table input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
+.status{display:inline-block;padding:2px 9px;border-radius:999px;font-size:13px;white-space:nowrap}
+.status.ok{background:#E8F1E6;color:#2F5A2A}
+.status.bad{background:#F7E1DF;color:#7A1414}
+.status.warn{background:#F6EBD7;color:#5C4520}
+
 .tpl-head{margin-top:6px;padding-top:12px;border-top:1px solid var(--line);font-family:var(--serif);font-weight:700;font-size:19px;color:var(--accent)}
 .tpl-head:first-child{border-top:0;padding-top:0;margin-top:0}
 .field label .hint{font-weight:400}

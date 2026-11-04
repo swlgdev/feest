@@ -65,6 +65,25 @@
 
     <div class="layout">
       <div class="guests-col">
+        <section class="review" id="review" aria-labelledby="reviewTitle" hidden>
+          <div class="review-head">
+            <div>
+              <h2 id="reviewTitle">Controleer de import</h2>
+              <p class="hint" id="reviewSummary"></p>
+            </div>
+            <div class="review-actions">
+              <button type="button" class="btn-line-dark" id="reviewCancel">Annuleren</button>
+              <button type="button" class="btn-primary" id="reviewOk">Akkoord</button>
+            </div>
+          </div>
+          <p class="hint">Pas namen of gegevens direct in de tabel aan. Alleen aangevinkte regels worden toegevoegd.</p>
+          <div class="review-scroll">
+            <table class="review-table">
+              <thead><tr><th scope="col"><span class="visually-hidden">Toevoegen</span></th><th scope="col">Controle</th><th scope="col">Naam</th><th scope="col">Tweede naam</th><th scope="col">E-mail</th><th scope="col">Telefoon</th></tr></thead>
+              <tbody id="reviewBody"></tbody>
+            </table>
+          </div>
+        </section>
         <div class="toolbar">
           <div class="search">
             <label for="gq">Zoek een gast</label>
@@ -90,13 +109,22 @@
             <div class="field"><label for="aTel">Telefoon (voor WhatsApp)</label><input id="aTel" type="tel" maxlength="40" placeholder="06 12345678"></div>
             <button type="submit" class="btn-primary">Toevoegen</button>
           </form>
-          <details class="bulk">
-            <summary>Of plak een hele lijst</summary>
-            <p class="hint">Eén gast of stel per regel: naam (en eventueel tweede naam), e-mail en/of telefoon. Gescheiden door een komma, puntkomma of tab, dus je kunt kolommen direct uit Excel plakken. Een stel mag ook als "Rogier en Sanne" of "Rogier &amp; Sanne".</p>
-            <label for="bulkText" class="visually-hidden">Lijst met gasten</label>
-            <textarea id="bulkText" rows="6" placeholder="Familie Jansen; jansen@voorbeeld.nl; 06 12345678&#10;Sanne de Vries, 0612345679"></textarea>
-            <button type="button" class="btn-primary" id="bulkBtn">Lijst toevoegen</button>
-          </details>
+          <div class="import">
+            <p class="import-title">Of importeer een lijst</p>
+            <label for="importFile" class="file-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13l3 3 5-6"/></svg>
+              Kies een Excel-bestand
+            </label>
+            <input id="importFile" type="file" accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" class="visually-hidden">
+            <p class="hint">Excel (.xlsx) of CSV, met kolommen zoals <strong>Naam</strong>, <strong>Tweede naam</strong>, <strong>E-mail</strong> en <strong>Telefoon</strong>. Je controleert de lijst eerst voordat er iets wordt toegevoegd. <a href="/admin/voorbeeld-gastenlijst.xlsx" download>Download een voorbeeldbestand</a>.</p>
+            <details class="bulk">
+              <summary>Of plak een lijst</summary>
+              <p class="hint">Eén gast of stel per regel: naam (en eventueel tweede naam), e-mail en/of telefoon, gescheiden door een komma, puntkomma of tab. Een stel mag ook als "Rogier en Sanne".</p>
+              <label for="bulkText" class="visually-hidden">Lijst met gasten</label>
+              <textarea id="bulkText" rows="6" placeholder="Familie Jansen; jansen@voorbeeld.nl; 06 12345678&#10;Rogier en Sanne, 0612345679"></textarea>
+              <button type="button" class="btn-primary" id="bulkBtn">Controleer lijst</button>
+            </details>
+          </div>
           <p class="result" id="addResult" role="status" hidden></p>
         </section>
 
@@ -169,6 +197,7 @@
 <!-- Boekje (alleen voor afdrukken) -->
 <div class="book" id="book" aria-hidden="true"></div>
 
+<script src="/admin/import.js" defer></script>
 <script src="/admin/admin.js" defer></script>
 </body>
 </html>

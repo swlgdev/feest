@@ -260,27 +260,90 @@
     });
   });
 
-  // Elke regel: naam + e-mail en/of telefoon, in willekeurige volgorde.
-  function parseLine(line) {
-    var parts = line.split(/\t|;|,/).map(function (p) { return p.trim(); }).filter(Boolean);
-    var g = { naam: '', naam2: '', email: '', telefoon: '' }, rest = [];
-    parts.forEach(function (p) {
-      if (!g.email && /@/.test(p)) g.email = p;
-      else if (!g.telefoon && /^[+()\d][\d\s()+-]{7,}$/.test(p)) g.telefoon = p;
-      else rest.push(p);
+  /* ---------- Importeren met controlestap ---------- */
+  var R = []; // regels in de controlelijst
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  var normTel = function (t) { return String(t || '').replace(/[^\d+]/g, ''); };
+
+  function validate() {
+    var emails = {}, phones = {};
+    G.guests.forEach(function (g) { if (g.email) emails[g.email.toLowerCase()] = 'list'; if (g.telefoon) phones[waNumber(g.telefoon)] = 'list'; });
+    R.forEach(function (r) {
+      var e = r.email.trim().toLowerCase(), t = r.telefoon.trim() ? waNumber(r.telefoon) : '';
+      r.err = '';
+      if (!r.naam.trim()) r.err = 'Naam ontbreekt';
+      else if (!e && !t) r.err = 'Geen e-mail of telefoon';
+      else if (e && !EMAIL_RE.test(e)) r.err = 'E-mailadres klopt niet';
+      else if (t && t.length < 9) r.err = 'Telefoonnummer klopt niet';
+      else if ((e && emails[e] === 'list') || (t && phones[t] === 'list')) r.err = 'Staat al in de lijst';
+      else if ((e && emails[e]) || (t && phones[t])) r.err = 'Dubbel in deze import';
+      if (!r.err) { if (e) emails[e] = 'import'; if (t) phones[t] = 'import'; }
+      if (r.err && !r.touched) r.on = false;
+      if (!r.err && !r.touched) r.on = true;
     });
-    if (rest.length >= 2) { g.naam = rest[0]; g.naam2 = rest.slice(1).join(' '); }
-    else {
-      // "Rogier en Sanne" of "Rogier & Sanne" in één kolom
-      var m = (rest[0] || '').split(/\s+(?:en|&)\s+/i);
-      g.naam = m[0] || ''; g.naam2 = m.slice(1).join(' en ');
-    }
-    return g;
   }
+
+  function renderReview() {
+    validate();
+    var ok = R.filter(function (r) { return r.on && !r.err; }).length;
+    var bad = R.filter(function (r) { return r.err; }).length;
+    $('reviewSummary').textContent = R.length + (R.length === 1 ? ' regel' : ' regels') + ' gevonden: ' + ok + ' klaar om toe te voegen' + (bad ? ', ' + bad + ' met een opmerking' : '') + '.';
+    $('reviewOk').textContent = ok ? 'Akkoord, ' + ok + (ok === 1 ? ' uitnodiging' : ' uitnodigingen') + ' toevoegen' : 'Niets om toe te voegen';
+    $('reviewOk').disabled = !ok;
+    $('reviewBody').innerHTML = R.map(function (r, i) {
+      var duo = r.naam2.trim() ? ' (stel)' : '';
+      var st = r.err ? '<span class="status ' + (r.err === 'Staat al in de lijst' || r.err.indexOf('Dubbel') === 0 ? 'warn' : 'bad') + '">' + esc(r.err) + '</span>'
+                     : '<span class="status ok">Klaar' + duo + '</span>';
+      var inp = function (k, label) { return '<td><input type="text" data-i="' + i + '" data-k="' + k + '" value="' + esc(r[k]) + '" aria-label="' + label + ' regel ' + (i + 1) + '"></td>'; };
+      return '<tr class="' + (r.on && !r.err ? '' : 'skip') + '">' +
+        '<td><input type="checkbox" data-i="' + i + '"' + (r.on && !r.err ? ' checked' : '') + (r.err ? ' disabled' : '') + ' aria-label="Regel ' + (i + 1) + ' toevoegen"></td>' +
+        '<td>' + st + '</td>' +
+        inp('naam', 'Naam') + inp('naam2', 'Tweede naam') + inp('email', 'E-mail') + inp('telefoon', 'Telefoon') + '</tr>';
+    }).join('');
+  }
+
+  function openReview(list, bron) {
+    R = list.map(function (g) { return { naam: g.naam || '', naam2: g.naam2 || '', email: g.email || '', telefoon: g.telefoon || '', on: true, touched: false }; });
+    if (!R.length) { showResult('addResult', 'Er staan geen gasten in ' + bron + '.', true); return; }
+    showResult('addResult', '');
+    $('review').hidden = false;
+    renderReview();
+    $('review').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function closeReview() { R = []; $('review').hidden = true; $('reviewBody').innerHTML = ''; }
+
+  $('reviewBody').addEventListener('change', function (e) {
+    var i = +e.target.getAttribute('data-i'); if (!R[i]) return;
+    if (e.target.type === 'checkbox') { R[i].on = e.target.checked; R[i].touched = true; }
+    else { R[i][e.target.getAttribute('data-k')] = e.target.value; R[i].touched = false; }
+    // Na het opnieuw tekenen de focus terugzetten op het veld waar je naartoe ging (bijv. met Tab).
+    setTimeout(function () {
+      var a = document.activeElement, ai = a && a.getAttribute && a.getAttribute('data-i'), ak = a && a.getAttribute && a.getAttribute('data-k');
+      renderReview();
+      if (ai !== null && ai !== undefined && ak) { var el = document.querySelector('#reviewBody input[data-i="' + ai + '"][data-k="' + ak + '"]'); if (el) el.focus(); }
+    }, 0);
+  });
+  $('reviewCancel').addEventListener('click', function () { closeReview(); showResult('addResult', 'Import geannuleerd, er is niets toegevoegd.'); });
+  $('reviewOk').addEventListener('click', function () {
+    var list = R.filter(function (r) { return r.on && !r.err; }).map(function (r) {
+      return { naam: r.naam.trim(), naam2: r.naam2.trim(), email: r.email.trim(), telefoon: r.telefoon.trim() };
+    });
+    if (!list.length) return;
+    $('reviewOk').disabled = true; $('reviewOk').textContent = 'Bezig met toevoegen...';
+    addGuests(list, function (j) { if (j.added.length) { closeReview(); $('bulkText').value = ''; } else renderReview(); });
+  });
+
+  $('importFile').addEventListener('change', function (e) {
+    var f = e.target.files && e.target.files[0]; e.target.value = '';
+    if (!f) return;
+    showResult('addResult', 'Bestand "' + f.name + '" inlezen...');
+    window.JMImport.readFile(f).then(function (list) { openReview(list, 'dit bestand'); })
+      .catch(function (err) { showResult('addResult', err.message || 'Dit bestand kon niet worden gelezen.', true); });
+  });
   $('bulkBtn').addEventListener('click', function () {
-    var lines = $('bulkText').value.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
-    if (!lines.length) { showResult('addResult', 'Plak eerst een lijst met gasten.', true); return; }
-    addGuests(lines.map(parseLine), function (j) { if (j.added.length) $('bulkText').value = ''; });
+    var text = $('bulkText').value;
+    if (!text.trim()) { showResult('addResult', 'Plak eerst een lijst met gasten.', true); return; }
+    openReview(window.JMImport.parseText(text), 'de geplakte lijst');
   });
 
   function fillTemplate() {
