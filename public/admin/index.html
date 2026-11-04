@@ -34,7 +34,7 @@
     <div class="top-inner">
       <svg width="44" height="50" viewBox="0 0 64 74" aria-hidden="true"><path d="M4 4 H60 V36 C60 54 46 65 32 71 C18 65 4 54 4 36 Z" fill="#FBF7F1" stroke="#C9A46A" stroke-width="2.5"/><text x="32" y="39" text-anchor="middle" font-family="Cormorant Garamond, serif" font-weight="700" font-size="24" fill="#8E1A1C">M&amp;J</text></svg>
       <div class="top-title">
-        <h1>Jullie gastenboek</h1>
+        <h1>Jullie feest</h1>
         <p>Alleen voor Joyce &amp; Marco</p>
       </div>
       <div class="top-actions">
@@ -47,7 +47,76 @@
     </div>
   </header>
 
-  <main class="main">
+  <nav class="tabs" aria-label="Onderdelen">
+    <div class="tabs-inner" role="tablist">
+      <button type="button" role="tab" id="tabBtnGasten" aria-controls="tabGasten" aria-selected="true">Uitnodigingen</button>
+      <button type="button" role="tab" id="tabBtnBerichten" aria-controls="tabBerichten" aria-selected="false">Berichten</button>
+    </div>
+  </nav>
+
+  <!-- ============ UITNODIGINGEN ============ -->
+  <main class="main" id="tabGasten" role="tabpanel" aria-labelledby="tabBtnGasten">
+    <div class="stats">
+      <div class="stat"><p>Gasten</p><strong id="gTotal">0</strong></div>
+      <div class="stat"><p>Uitnodiging verstuurd</p><strong id="gSent">0</strong></div>
+      <div class="stat dark"><p>Link geopend</p><strong id="gOpened">0</strong></div>
+      <div class="stat"><p>Nog niet geopend</p><strong id="gNotOpened">0</strong></div>
+    </div>
+
+    <div class="layout">
+      <div class="guests-col">
+        <div class="toolbar">
+          <div class="search">
+            <label for="gq">Zoek een gast</label>
+            <input id="gq" type="search" placeholder="Naam, e-mail of nummer...">
+          </div>
+          <div class="filters" id="guestFilters" role="group" aria-label="Filter gasten">
+            <button type="button" data-g="alles" aria-pressed="true">Alles</button>
+            <button type="button" data-g="nietverstuurd" aria-pressed="false">Nog versturen</button>
+            <button type="button" data-g="nietgeopend" aria-pressed="false">Niet geopend</button>
+            <button type="button" data-g="geopend" aria-pressed="false">Geopend</button>
+          </div>
+        </div>
+        <section class="guest-list" id="guestList" aria-label="Gasten" aria-live="polite"></section>
+      </div>
+
+      <aside class="side">
+        <section class="panel">
+          <h2 class="accent">Gast toevoegen</h2>
+          <form id="addOne" class="stack">
+            <div class="field"><label for="aNaam">Naam</label><input id="aNaam" type="text" maxlength="80" required></div>
+            <div class="field"><label for="aMail">E-mail</label><input id="aMail" type="email" maxlength="160" inputmode="email"></div>
+            <div class="field"><label for="aTel">Telefoon (voor WhatsApp)</label><input id="aTel" type="tel" maxlength="40" placeholder="06 12345678"></div>
+            <button type="submit" class="btn-primary">Toevoegen</button>
+          </form>
+          <details class="bulk">
+            <summary>Of plak een hele lijst</summary>
+            <p class="hint">Eén gast per regel: naam, e-mail en/of telefoon. Gescheiden door een komma, puntkomma of tab, dus je kunt kolommen direct uit Excel plakken.</p>
+            <label for="bulkText" class="visually-hidden">Lijst met gasten</label>
+            <textarea id="bulkText" rows="6" placeholder="Familie Jansen; jansen@voorbeeld.nl; 06 12345678&#10;Sanne de Vries, 0612345679"></textarea>
+            <button type="button" class="btn-primary" id="bulkBtn">Lijst toevoegen</button>
+          </details>
+          <p class="result" id="addResult" role="status" hidden></p>
+        </section>
+
+        <section class="panel">
+          <details id="tplBox">
+            <summary class="sum-title">Uitnodigingstekst</summary>
+            <form id="tplForm" class="stack">
+              <div class="field"><label for="tplSubject">Onderwerp (voor e-mail)</label><input id="tplSubject" type="text" maxlength="200"></div>
+              <div class="field"><label for="tplText">Bericht</label><textarea id="tplText" rows="11" maxlength="4000"></textarea></div>
+              <p class="hint"><strong>{naam}</strong> en <strong>{link}</strong> worden per gast automatisch ingevuld.</p>
+              <button type="submit" class="btn-primary">Tekst opslaan</button>
+              <p class="result" id="tplResult" role="status" hidden></p>
+            </form>
+          </details>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <!-- ============ BERICHTEN ============ -->
+  <main class="main" id="tabBerichten" role="tabpanel" aria-labelledby="tabBtnBerichten" hidden>
     <div class="stats">
       <div class="stat"><p>Berichten</p><strong id="sTotal">0</strong></div>
       <div class="stat"><p>Nieuw sinds "gelezen"</p><strong id="sNew">0</strong></div>
@@ -60,7 +129,7 @@
         <label for="q">Zoek in berichten</label>
         <input id="q" type="search" placeholder="Naam of woord...">
       </div>
-      <div class="filters" role="group" aria-label="Filter">
+      <div class="filters" id="msgFilters" role="group" aria-label="Filter">
         <button type="button" data-f="alles" aria-pressed="true">Alles</button>
         <button type="button" data-f="nieuw" aria-pressed="false">Nieuw</button>
         <button type="button" data-f="favoriet" aria-pressed="false">Favorieten</button>

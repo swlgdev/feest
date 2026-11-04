@@ -6,6 +6,9 @@
   "regions": ["fra1"],
   "cleanUrls": true,
   "trailingSlash": false,
+  "rewrites": [
+    { "source": "/i/:token", "destination": "/api/invite?t=:token" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

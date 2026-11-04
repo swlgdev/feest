@@ -117,6 +117,14 @@
     window.scrollTo({ top: y, behavior: reduceMotion ? 'auto' : 'smooth' });
   });
 
+  /* ---------- Persoonlijke begroeting ---------- */
+  fetch('/api/me', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+    if (!j || !j.naam) return;
+    $('greeting').textContent = 'Lieve ' + j.naam + ',';
+    var n = $('gb-naam');
+    if (n && !n.value) n.value = j.naam;
+  }).catch(function () {});
+
   /* ---------- Aftellen ---------- */
   var cd = { d: $('cdD'), h: $('cdH'), m: $('cdM'), s: $('cdS') };
   function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -188,7 +196,8 @@
         if (!res.ok) throw new Error(data.error || 'Er ging iets mis.');
       });
     }).then(function () {
-      form.reset(); fotoData = null; preview.hidden = true; fotoLabel.textContent = 'Kies een foto';
+      var keepName = form.naam.value;
+      form.reset(); form.naam.value = keepName; fotoData = null; preview.hidden = true; fotoLabel.textContent = 'Kies een foto';
       form.hidden = true; thanks.hidden = false;
       confetti($('confettiLayer'), 60);
     }).catch(function (err) {

@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { writeJson, putPhoto } from './_lib/store.js';
+import { guestToken, isAdmin } from './_lib/auth.js';
 
 const MAX_PHOTO = 3.5 * 1024 * 1024;
 
@@ -7,6 +8,12 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Methode niet toegestaan' });
+  }
+
+  // Alleen gasten met een persoonlijke link (of de beheerder) kunnen een bericht sturen.
+  const gast = guestToken(req);
+  if (!gast && !isAdmin(req)) {
+    return res.status(403).json({ error: 'Open de pagina via je persoonlijke uitnodiging om een bericht te sturen.' });
   }
 
   const b = req.body && typeof req.body === 'object' ? req.body : {};
@@ -35,7 +42,7 @@ export default async function handler(req, res) {
     }
 
     await writeJson(`messages/${id}.json`, {
-      id, naam, bericht, liedje, foto, createdAt: new Date().toISOString()
+      id, naam, bericht, liedje, foto, gast: gast || null, createdAt: new Date().toISOString()
     });
 
     return res.status(200).json({ ok: true });

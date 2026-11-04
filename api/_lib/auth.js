@@ -44,6 +44,36 @@ export function isAdmin(req) {
   return safeEqual(sig, sign(exp));
 }
 
+/* ---------- Gasten (persoonlijke uitnodigingslink) ---------- */
+
+const GUEST_COOKIE = 'jm_gast';
+const GUEST_MAX_AGE = 60 * 60 * 24 * 365;
+export const TOKEN_RE = /^[A-Za-z0-9_-]{16}$/;
+
+export function newToken() {
+  return crypto.randomBytes(12).toString('base64url');
+}
+
+export function guestCookie(token) {
+  return `${GUEST_COOKIE}=${token}.${sign('g:' + token)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${GUEST_MAX_AGE}`;
+}
+
+function readCookie(req, name) {
+  const raw = req.headers.cookie || '';
+  const part = raw.split(/;\s*/).find((c) => c.startsWith(name + '='));
+  return part ? part.slice(name.length + 1) : null;
+}
+
+// Geeft het token van de gast terug als de cookie geldig is, anders null.
+export function guestToken(req) {
+  if (!secret()) return null;
+  const v = readCookie(req, GUEST_COOKIE);
+  if (!v) return null;
+  const [token, sig] = v.split('.');
+  if (!TOKEN_RE.test(token || '') || !sig) return null;
+  return safeEqual(sig, sign('g:' + token)) ? token : null;
+}
+
 export function requireAdmin(req, res) {
   if (isAdmin(req)) return true;
   res.status(401).json({ error: 'Niet ingelogd' });

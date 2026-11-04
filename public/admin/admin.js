@@ -54,10 +54,174 @@
 
   /* ---------- Laden + tekenen ---------- */
   function load() {
-    return api('/api/admin/messages').then(function (j) {
-      data = j; showDash(); render();
+    return Promise.all([api('/api/admin/messages'), api('/api/admin/guests')]).then(function (r) {
+      data = r[0]; G = r[1]; showDash(); render(); renderGuests(); fillTemplate();
     }).catch(function (e) { if (e.message !== 'login') alert(e.message); });
   }
+
+  /* ---------- Tabs ---------- */
+  function showTab(name) {
+    var g = name === 'gasten';
+    $('tabGasten').hidden = !g; $('tabBerichten').hidden = g;
+    $('tabBtnGasten').setAttribute('aria-selected', String(g));
+    $('tabBtnBerichten').setAttribute('aria-selected', String(!g));
+    $('printBtn').hidden = g;
+    try { localStorage.setItem('jm_tab', name); } catch (e) {}
+  }
+  $('tabBtnGasten').addEventListener('click', function () { showTab('gasten'); });
+  $('tabBtnBerichten').addEventListener('click', function () { showTab('berichten'); });
+  try { showTab(localStorage.getItem('jm_tab') === 'berichten' ? 'berichten' : 'gasten'); } catch (e) { showTab('gasten'); }
+
+  /* ---------- Uitnodigingen ---------- */
+  var G = { guests: [], settings: { template: '', subject: '' }, baseUrl: location.origin };
+  var gFilter = 'alles', gQuery = '';
+  var WA_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21l1.7-5A8.5 8.5 0 1 1 8 19.3z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1.2-1.4-2-1-1 .9c-1-.4-1.9-1.3-2.3-2.3l.9-1-1-2z"/></svg>';
+  var MAIL_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
+  var LINK_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>';
+
+  function guestLink(g) { return G.baseUrl + '/i/' + g.token; }
+  function guestText(g) {
+    return (G.settings.template || '').replace(/\{naam\}/g, g.naam).replace(/\{link\}/g, guestLink(g));
+  }
+  // 06 12345678 / +31 6... / 0031 6... -> 316...
+  function waNumber(tel) {
+    var t = String(tel || '').replace(/[^\d+]/g, '');
+    if (t.indexOf('+') === 0) t = t.slice(1);
+    else if (t.indexOf('00') === 0) t = t.slice(2);
+    else if (t.indexOf('0') === 0) t = '31' + t.slice(1);
+    return t.replace(/\D/g, '');
+  }
+  function waHref(g) { return 'https://wa.me/' + waNumber(g.telefoon) + '?text=' + encodeURIComponent(guestText(g)); }
+  function mailHref(g) {
+    return 'mailto:' + encodeURIComponent(g.email).replace(/%40/g, '@') + '?subject=' + encodeURIComponent(G.settings.subject || '') + '&body=' + encodeURIComponent(guestText(g));
+  }
+
+  function visibleGuests() {
+    var q = gQuery.trim().toLowerCase();
+    return G.guests.filter(function (g) {
+      if (gFilter === 'nietverstuurd' && g.sentAt) return false;
+      if (gFilter === 'nietgeopend' && g.openedAt) return false;
+      if (gFilter === 'geopend' && !g.openedAt) return false;
+      if (q && (g.naam + ' ' + g.email + ' ' + g.telefoon).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+  }
+
+  function renderGuests() {
+    var gs = G.guests;
+    $('gTotal').textContent = gs.length;
+    $('gSent').textContent = gs.filter(function (g) { return g.sentAt; }).length;
+    $('gOpened').textContent = gs.filter(function (g) { return g.openedAt; }).length;
+    $('gNotOpened').textContent = gs.filter(function (g) { return !g.openedAt; }).length;
+
+    var list = visibleGuests();
+    $('guestList').innerHTML = list.length ? list.map(function (g) {
+      var chips = '';
+      if (g.openedAt) chips += '<span class="chip open">Geopend ' + esc(fmt(g.openedAt)) + (g.opens > 1 ? ' · ' + g.opens + '×' : '') + '</span>';
+      if (g.sentAt) chips += '<span class="chip sent">Verstuurd ' + esc(fmt(g.sentAt)) + (g.sentVia && g.sentVia.length ? ' via ' + esc(g.sentVia.join(' en ')) : '') + '</span>';
+      if (!g.sentAt && !g.openedAt) chips += '<span class="chip">Nog niet verstuurd</span>';
+      var contact = [g.email, g.telefoon].filter(Boolean).map(esc).join(' · ');
+      return '<article class="guest">' +
+        '<div class="guest-main"><h3 class="guest-name">' + esc(g.naam) + '</h3><p class="guest-contact">' + contact + '</p><div class="chips">' + chips + '</div></div>' +
+        '<div class="guest-actions">' +
+        (g.telefoon ? '<a class="act wa" target="_blank" rel="noopener" href="' + esc(waHref(g)) + '" data-sent="' + g.token + '" data-via="WhatsApp">' + WA_ICON + 'WhatsApp</a>' : '') +
+        (g.email ? '<a class="act mail" href="' + esc(mailHref(g)) + '" data-sent="' + g.token + '" data-via="e-mail">' + MAIL_ICON + 'Mail</a>' : '') +
+        '<button type="button" class="act icon" data-copy="' + g.token + '" aria-label="Kopieer link van ' + esc(g.naam) + '" title="Kopieer link">' + LINK_ICON + '</button>' +
+        '<button type="button" class="act icon" data-delguest="' + g.token + '" aria-label="Verwijder ' + esc(g.naam) + '" title="Verwijder">' + TRASH + '</button>' +
+        '</div></article>';
+    }).join('') : '<p class="empty">' + (gs.length ? 'Geen gasten gevonden.' : 'Nog geen gasten. Voeg ze toe bij "Gast toevoegen", los of als lijst.') + '</p>';
+  }
+
+  $('guestList').addEventListener('click', function (e) {
+    var sent = e.target.closest('[data-sent]');
+    var copy = e.target.closest('[data-copy]');
+    var del = e.target.closest('[data-delguest]');
+    if (sent) {
+      var tok = sent.getAttribute('data-sent'), via = sent.getAttribute('data-via');
+      var g = G.guests.find(function (x) { return x.token === tok; });
+      if (g && !g.sentAt) { g.sentAt = new Date().toISOString(); }
+      if (g) { g.sentVia = (g.sentVia || []).concat(g.sentVia && g.sentVia.indexOf(via) > -1 ? [] : [via]); }
+      setTimeout(renderGuests, 300);
+      api('/api/admin/guests', { method: 'POST', body: { action: 'sent', token: tok, via: via } }).catch(function () {});
+    }
+    if (copy) {
+      var cg = G.guests.find(function (x) { return x.token === copy.getAttribute('data-copy'); });
+      navigator.clipboard.writeText(guestLink(cg)).then(function () {
+        copy.title = 'Gekopieerd!'; copy.style.color = '#8E1A1C';
+        setTimeout(function () { copy.title = 'Kopieer link'; copy.style.color = ''; }, 1500);
+      });
+    }
+    if (del) {
+      var dt = del.getAttribute('data-delguest');
+      var dg = G.guests.find(function (x) { return x.token === dt; });
+      if (!confirm((dg ? dg.naam : 'Deze gast') + ' verwijderen? De persoonlijke link werkt dan niet meer.')) return;
+      api('/api/admin/guests?token=' + encodeURIComponent(dt), { method: 'DELETE' }).then(function () {
+        G.guests = G.guests.filter(function (x) { return x.token !== dt; });
+        renderGuests();
+      }).catch(function (x) { if (x.message !== 'login') alert(x.message); });
+    }
+  });
+
+  $('gq').addEventListener('input', function (e) { gQuery = e.target.value; renderGuests(); });
+  Array.prototype.forEach.call(document.querySelectorAll('#guestFilters button'), function (b) {
+    b.addEventListener('click', function () {
+      gFilter = b.getAttribute('data-g');
+      Array.prototype.forEach.call(document.querySelectorAll('#guestFilters button'), function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+      renderGuests();
+    });
+  });
+
+  function showResult(id, text, isErr) {
+    var el = $(id); el.textContent = text; el.classList.toggle('err', !!isErr); el.hidden = !text;
+  }
+  function addGuests(list, done) {
+    api('/api/admin/guests', { method: 'POST', body: { action: 'add', guests: list } }).then(function (j) {
+      G.guests = G.guests.concat(j.added).sort(function (a, b) { return a.naam.localeCompare(b.naam, 'nl'); });
+      renderGuests();
+      var msg = j.added.length + (j.added.length === 1 ? ' gast toegevoegd.' : ' gasten toegevoegd.');
+      if (j.skipped.length) msg += '\nNiet toegevoegd:\n' + j.skipped.map(function (s) { return '- ' + (s.naam || '(zonder naam)') + ': ' + s.reden; }).join('\n');
+      showResult('addResult', msg, j.added.length === 0);
+      if (done) done(j);
+    }).catch(function (x) { if (x.message !== 'login') showResult('addResult', x.message, true); });
+  }
+
+  $('addOne').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var naam = $('aNaam').value.trim(), email = $('aMail').value.trim(), tel = $('aTel').value.trim();
+    if (!naam || (!email && !tel)) { showResult('addResult', 'Vul een naam in en een e-mailadres of telefoonnummer.', true); return; }
+    addGuests([{ naam: naam, email: email, telefoon: tel }], function (j) {
+      if (j.added.length) { $('aNaam').value = ''; $('aMail').value = ''; $('aTel').value = ''; $('aNaam').focus(); }
+    });
+  });
+
+  // Elke regel: naam + e-mail en/of telefoon, in willekeurige volgorde.
+  function parseLine(line) {
+    var parts = line.split(/\t|;|,/).map(function (p) { return p.trim(); }).filter(Boolean);
+    var g = { naam: '', email: '', telefoon: '' }, rest = [];
+    parts.forEach(function (p) {
+      if (!g.email && /@/.test(p)) g.email = p;
+      else if (!g.telefoon && /^[+()\d][\d\s()+-]{7,}$/.test(p)) g.telefoon = p;
+      else rest.push(p);
+    });
+    g.naam = rest.join(' ');
+    return g;
+  }
+  $('bulkBtn').addEventListener('click', function () {
+    var lines = $('bulkText').value.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
+    if (!lines.length) { showResult('addResult', 'Plak eerst een lijst met gasten.', true); return; }
+    addGuests(lines.map(parseLine), function (j) { if (j.added.length) $('bulkText').value = ''; });
+  });
+
+  function fillTemplate() {
+    $('tplSubject').value = G.settings.subject || '';
+    $('tplText').value = G.settings.template || '';
+  }
+  $('tplForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    api('/api/admin/guests', { method: 'POST', body: { action: 'settings', subject: $('tplSubject').value, template: $('tplText').value } })
+      .then(function (j) { G.settings = j.settings; fillTemplate(); renderGuests(); showResult('tplResult', 'Opgeslagen.'); })
+      .catch(function (x) { if (x.message !== 'login') showResult('tplResult', x.message, true); });
+  });
 
   function visible() {
     var q = query.trim().toLowerCase();
@@ -120,10 +284,10 @@
   });
 
   $('q').addEventListener('input', function (e) { query = e.target.value; render(); });
-  Array.prototype.forEach.call(document.querySelectorAll('.filters button'), function (b) {
+  Array.prototype.forEach.call(document.querySelectorAll('#msgFilters button'), function (b) {
     b.addEventListener('click', function () {
       filter = b.getAttribute('data-f');
-      Array.prototype.forEach.call(document.querySelectorAll('.filters button'), function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+      Array.prototype.forEach.call(document.querySelectorAll('#msgFilters button'), function (o) { o.setAttribute('aria-pressed', String(o === b)); });
       render();
     });
   });
