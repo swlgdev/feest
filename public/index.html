@@ -52,8 +52,8 @@
     </div>
 
     <div class="gate" id="gate" aria-hidden="true">
-      <div class="wall left" id="wallL"><span class="hedge"></span></div>
-      <div class="wall right" id="wallR"><span class="hedge"></span></div>
+      <div class="wall left" id="wallL"><span class="rail"></span><span class="plinth"></span></div>
+      <div class="wall right" id="wallR"><span class="rail"></span><span class="plinth"></span></div>
       <div class="pillar left" id="pillarL">
         <div class="lantern"><span class="glow"></span><svg viewBox="0 0 24 40"><path d="M1 12 L12 0 L23 12 Z" fill="#2B2724"/><rect x="1" y="11" width="22" height="3" fill="#2B2724"/><rect x="3" y="14" width="18" height="16" rx="1" fill="#FFD48A" class="flick"/><rect x="1" y="29" width="22" height="3" fill="#2B2724"/><rect x="10" y="32" width="4" height="8" fill="#2B2724"/></svg></div>
         <div class="cap"></div><div class="shaft"><span class="panel"></span><span class="band"></span></div>
@@ -179,53 +179,6 @@
       <p class="muted italic">We starten graag met iedereen tegelijk, dus fijn als je er op tijd bent om de avond ontspannen te beginnen.</p>
     </section>
 
-    <!-- ============ CADEAU ============ -->
-    <section id="cadeau" class="card">
-      <h2 class="card-title"><span></span>Cadeautip<span></span></h2>
-      <p>Jullie aanwezigheid is voor ons het allerleukste cadeau. Mocht je ons toch iets willen geven, dan sparen we graag voor een mooie, blijvende herinnering aan de muur bij ons thuis.</p>
-      <p class="muted italic">Op de avond zelf nemen we liever geen enveloppen of losse cadeaus in ontvangst. Een bijdrage via onderstaande link is voor ons het fijnst.</p>
-      <a class="btn-primary" id="payBtn" href="#cadeau">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="13" rx="1.5"/><path d="M3 12h18M12 8v13M12 8c-2-4-6-4-6-1.5S10 8 12 8zM12 8c2-4 6-4 6-1.5S14 8 12 8z"/></svg>
-        Vrijblijvend bijdragen
-      </a>
-      <div class="qr-row">
-        <div class="qr">
-          <img src="/assets/qr-demo.png" alt="QR-code om bij te dragen" width="104" height="104">
-        </div>
-        <p class="muted small">Bekijk je deze pagina op een computer? Scan dan de QR-code met je telefoon.</p>
-      </div>
-    </section>
-
-    </div>
-    <div class="col col-b">
-    <!-- ============ ROUTE ============ -->
-    <section id="route" class="card card-flush">
-      <img class="card-photo" src="/assets/venue_wide.jpg" alt="Voorgevel van Central Park Voorburg bij avond" loading="lazy">
-      <div class="card-body">
-        <h2 class="card-title"><span></span>Route<span></span></h2>
-        <div class="icon-row">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8E1A1C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>
-          <div>
-            <p class="venue-name">Central Park Voorburg</p>
-            <p>Oosteinde 14, 2271 EH Voorburg</p>
-            <p class="muted italic">Het landhuis in Park Vreugd &amp; Rust</p>
-          </div>
-        </div>
-        <div class="map-btns">
-          <a href="https://www.google.com/maps/search/?api=1&amp;query=Central+Park+Voorburg+Oosteinde+14+Voorburg" target="_blank" rel="noopener">Google Maps</a>
-          <a href="https://maps.apple.com/?q=Central+Park+Voorburg&amp;address=Oosteinde+14,+2271+EH+Voorburg" target="_blank" rel="noopener">Apple Kaarten</a>
-          <a href="https://waze.com/ul?q=Oosteinde%2014%20Voorburg&amp;navigate=yes" target="_blank" rel="noopener">Waze</a>
-        </div>
-        <div class="icon-row divider">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8E1A1C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/></svg>
-          <div>
-            <h3>Parkeren</h3>
-            <p>Gratis parkeren op het eigen terrein van Central Park in Park Vreugd &amp; Rust. Is het terrein vol? Dan kun je in de directe omgeving parkeren.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ============ BERICHT (privé) ============ -->
     <section id="bericht" class="card">
       <h2 class="card-title"><span></span>Een berichtje<span></span></h2>
@@ -265,6 +218,53 @@
         <button type="button" class="btn-pill" id="againBtn">Nog een bericht schrijven</button>
       </div>
     </section>
+    </div>
+    <div class="col col-b">
+    <!-- ============ ROUTE ============ -->
+    <section id="route" class="card card-flush">
+      <img class="card-photo" src="/assets/venue_wide.jpg" alt="Voorgevel van Central Park Voorburg bij avond" loading="lazy">
+      <div class="card-body">
+        <h2 class="card-title"><span></span>Route<span></span></h2>
+        <div class="icon-row">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8E1A1C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          <div>
+            <p class="venue-name">Central Park Voorburg</p>
+            <p>Oosteinde 14, 2271 EH Voorburg</p>
+            <p class="muted italic">Het landhuis in Park Vreugd &amp; Rust</p>
+          </div>
+        </div>
+        <div class="map-btns">
+          <a href="https://www.google.com/maps/search/?api=1&amp;query=Central+Park+Voorburg+Oosteinde+14+Voorburg" target="_blank" rel="noopener">Google Maps</a>
+          <a href="https://maps.apple.com/?q=Central+Park+Voorburg&amp;address=Oosteinde+14,+2271+EH+Voorburg" target="_blank" rel="noopener">Apple Kaarten</a>
+          <a href="https://waze.com/ul?q=Oosteinde%2014%20Voorburg&amp;navigate=yes" target="_blank" rel="noopener">Waze</a>
+        </div>
+        <div class="icon-row divider">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8E1A1C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/></svg>
+          <div>
+            <h3>Parkeren</h3>
+            <p>Gratis parkeren op het eigen terrein van Central Park in Park Vreugd &amp; Rust. Is het terrein vol? Dan kun je in de directe omgeving parkeren.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CADEAU ============ -->
+    <section id="cadeau" class="card">
+      <h2 class="card-title"><span></span>Cadeautip<span></span></h2>
+      <p>Jullie aanwezigheid is voor ons het allerleukste cadeau. Mocht je ons toch iets willen geven, dan sparen we graag voor een mooie, blijvende herinnering aan de muur bij ons thuis.</p>
+      <p class="muted italic">Op de avond zelf nemen we liever geen enveloppen of losse cadeaus in ontvangst. Een bijdrage via onderstaande link is voor ons het fijnst.</p>
+      <a class="btn-primary" id="payBtn" href="#cadeau">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="13" rx="1.5"/><path d="M3 12h18M12 8v13M12 8c-2-4-6-4-6-1.5S10 8 12 8zM12 8c2-4 6-4 6-1.5S14 8 12 8z"/></svg>
+        Vrijblijvend bijdragen
+      </a>
+      <div class="qr-row">
+        <div class="qr">
+          <img src="/assets/qr-demo.png" alt="QR-code om bij te dragen" width="104" height="104">
+        </div>
+        <p class="muted small">Bekijk je deze pagina op een computer? Scan dan de QR-code met je telefoon.</p>
+      </div>
+    </section>
+
     </div>
   </div>
 

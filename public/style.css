@@ -189,28 +189,47 @@ p{margin:0}
   .wing{top:42.4%;width:calc((var(--portal) - 2*var(--pw))/2)}
   .wing.left{left:calc(var(--side) + var(--pw))}
   .wing.right{right:calc(var(--side) + var(--pw))}
-  .wall{display:block;position:absolute;bottom:0;height:22%;width:var(--side);background:#EEE4D4;border-top:12px solid #E2D5C0;box-shadow:inset 0 1px 0 #D6C7AF}
+  /* Laag smeedijzeren hek op een stenen voet, in de stijl van de poort */
+  .wall{display:block;position:absolute;bottom:0;height:34%;width:var(--side)}
   .wall.left{left:0} .wall.right{right:0}
-  .wall .hedge{position:absolute;left:0;right:0;top:-46px;height:34px;border-radius:18px 18px 0 0;background:radial-gradient(circle at 12px 14px,#3F5A3A 11px,transparent 12px) 0 0/26px 34px repeat-x,#34502F;opacity:.95}
+  .wall .rail{position:absolute;left:0;right:0;top:0;bottom:56px;border-top:4px solid #2B2724;
+    background:
+      linear-gradient(#2B2724,#2B2724) 0 22px/100% 3px no-repeat,
+      linear-gradient(#2B2724,#2B2724) 0 calc(100% - 14px)/100% 3px no-repeat,
+      repeating-linear-gradient(90deg,#2B2724 0 3px,transparent 3px 26px)}
+  .wall.left .rail{background-position:0 22px,0 calc(100% - 14px),right 0 top 0}
+  .wall .rail::before{content:"";position:absolute;left:0;right:0;top:-12px;height:10px;
+    background:radial-gradient(circle at 1.5px 6px,#2B2724 3.5px,transparent 4px) 0 0/26px 10px repeat-x}
+  .wall.left .rail::before{background-position:right 0 top 0}
+  .wall .plinth{position:absolute;left:0;right:0;bottom:0;height:56px;background:#EEE4D4;border-top:10px solid #E2D5C0;box-shadow:inset 0 1px 0 #D6C7AF}
   .hint{bottom:4.5%}
   .welcome{bottom:9%}
   .plaque{padding:22px 54px 24px}
   .plaque-title{font-size:56px}
   .plaque-sub{font-size:15px}
 
-  .content{max-width:1120px;padding:0 32px}
-  .intro-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:48px;align-items:center;padding:56px 0 8px}
-  .intro-row .date{padding:0}
-  .intro-row .welcome-text{padding:0;text-align:left;align-items:flex-start}
-  .intro-row .greeting{font-size:34px}
+  /* Eén raster: alles even breed als de twee kaartkolommen samen */
+  .content{max-width:1180px;padding:0 40px}
+  .intro-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;margin-top:64px;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .intro-row .date{padding:40px 44px;justify-content:center;border-right:1px solid var(--line)}
+  .intro-row .welcome-text{padding:40px 52px;text-align:left;align-items:flex-start;justify-content:center;background:var(--bg)}
+  .intro-row .greeting{font-size:36px}
   .intro-row .welcome-text p:not(.greeting){font-size:19px}
   .band-day{font-size:96px}
   .chips{display:none}
-  .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;padding:44px 0 10px;align-items:start}
+  .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;padding:28px 0 10px;align-items:stretch}
   .col{display:flex;flex-direction:column;gap:28px;min-width:0}
+  /* Beide kolommen eindigen op dezelfde lijn */
+  .col-a > .card:last-child{flex:1}
+  /* Rechts vangt de foto bij de route het hoogteverschil op */
+  .col-b > #route{flex:1}
+  .col-b > #route .card-photo{flex:1 1 auto;height:auto;min-height:240px}
+  .col-b > #cadeau{flex:0 0 auto}
+  .card{padding:28px 30px}
+  .card-flush{padding:0}
+  .card-body{padding:26px 30px 30px}
   .card{transition:transform .25s ease,box-shadow .25s ease}
   .card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(110,70,30,.10)}
-  .card-photo{height:260px}
   .footer{padding-top:48px}
   .leaves-bottom{height:180px}
   .leaves-bottom img{width:190px}
