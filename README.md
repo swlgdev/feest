@@ -33,7 +33,7 @@ Berichten en foto's staan in een **privé** Vercel Blob store; alleen de serverf
 
 ## Betaling
 
-De betaallink (Rabobank-betaalverzoek) staat in `BETAAL_URL` bovenin `public/app.js` en als href van de knop in `public/index.html`; de QR-code is `public/assets/qr-betaling.png`.
+De betaallink (Rabobank-betaalverzoek) staat in `BETAAL_URL` bovenin `public/app.js` en als href van de knop in `public/index.html`; de QR-code is `public/assets/qr-betaling-2.png`.
 
 ## Lokaal draaien
 

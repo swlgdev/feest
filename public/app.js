@@ -2,7 +2,7 @@
   'use strict';
 
   // Vul hier de echte betaallink in (bijv. een Tikkie- of bunq-link).
-  var BETAAL_URL = 'https://betaalverzoek.rabobank.nl/betaalverzoek/?id=S0JUZfhqTZWBTbw87NHKEw';
+  var BETAAL_URL = 'https://betaalverzoek.rabobank.nl/betaalverzoek/?id=OcqN_qLVQ3KgLJS2Y4Ux-Q';
   var FEEST = new Date('2026-11-21T19:30:00+01:00').getTime();
   var COLORS = ['#8E1A1C', '#C9A46A', '#D9772B', '#B8321E', '#E8C9A0', '#6E1E2A'];
 
