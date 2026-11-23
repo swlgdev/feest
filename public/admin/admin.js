@@ -164,6 +164,7 @@
       if (gFilter === 'nietverstuurd' && g.sentAt) return false;
       if (gFilter === 'nietgeopend' && g.openedAt) return false;
       if (gFilter === 'geopend' && !g.openedAt) return false;
+      if (gFilter === 'nietbedankt' && g.thankedAt) return false;
       if (q && (g.naam + ' ' + (g.achternaam || '') + ' ' + (g.naam2 || '') + ' ' + g.email + ' ' + g.telefoon).toLowerCase().indexOf(q) < 0) return false;
       return true;
     });
@@ -182,12 +183,14 @@
       if (g.openedAt) chips += '<span class="chip open">Geopend ' + esc(fmt(g.openedAt)) + (g.opens > 1 ? ' · ' + g.opens + '×' : '') + '</span>';
       if (g.sentAt) chips += '<span class="chip sent">Verstuurd ' + esc(fmt(g.sentAt)) + (g.sentVia && g.sentVia.length ? ' via ' + esc(g.sentVia.join(' en ')) : '') + '</span>';
       if (!g.sentAt && !g.openedAt) chips += '<span class="chip">Nog niet verstuurd</span>';
+      if (g.thankedAt) chips = '<span class="chip thanked">Bedankt gemaild ' + esc(fmt(g.thankedAt)) + '</span>' + chips;
       var contact = [g.email, g.telefoon].filter(Boolean).map(esc).join(' · ');
       return '<article class="guest">' +
         '<div class="guest-main"><h3 class="guest-name">' + esc(volledigeNaam(g)) + '</h3><p class="guest-contact">' + contact + '</p><div class="chips">' + chips + '</div></div>' +
         '<div class="guest-actions">' +
+        (g.email ? '<button type="button" class="act thank" data-thank="' + g.token + '">' + MAIL_ICON + 'Mail bedankt</button>' : '') +
         (g.telefoon ? '<a class="act wa" target="_blank" rel="noopener" href="' + esc(waHref(g)) + '" data-sent="' + g.token + '" data-via="WhatsApp">' + WA_ICON + 'WhatsApp</a>' : '') +
-        (g.email ? '<button type="button" class="act mail" data-mail="' + g.token + '">' + MAIL_ICON + 'Mail</button>' : '') +
+        (g.email ? '<button type="button" class="act mail" data-mail="' + g.token + '">' + MAIL_ICON + 'Mail uitnodiging</button>' : '') +
         '<button type="button" class="act icon" data-edit="' + g.token + '" aria-label="Namen wijzigen van ' + esc(namen(g)) + '" title="Namen wijzigen">' + EDIT_ICON + '</button>' +
         '<button type="button" class="act icon" data-copy="' + g.token + '" aria-label="Kopieer link van ' + esc(g.naam) + '" title="Kopieer link">' + LINK_ICON + '</button>' +
         '<button type="button" class="act icon" data-delguest="' + g.token + '" aria-label="Verwijder ' + esc(g.naam) + '" title="Verwijder">' + TRASH + '</button>' +
@@ -201,6 +204,12 @@
     var del = e.target.closest('[data-delguest]');
     var mail = e.target.closest('[data-mail]');
     var edit = e.target.closest('[data-edit]');
+    var thank = e.target.closest('[data-thank]');
+    if (thank) {
+      var tg = G.guests.find(function (x) { return x.token === thank.getAttribute('data-thank'); });
+      if (tg) sendThanks(tg);
+      return;
+    }
     if (edit) {
       var eg = G.guests.find(function (x) { return x.token === edit.getAttribute('data-edit'); });
       if (!eg) return;
@@ -374,6 +383,24 @@
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
     else fallback();
   });
+
+  // Bedankje per gast: eigen aanhef, en "je" in plaats van "jullie" als de gast alleen kwam.
+  function thanksFor(g) {
+    var t = bedankText().replace(/^Lieve allemaal,/, 'Lieve ' + namen(g) + ',');
+    if (!isDuo(g)) t = t.replace('Dank jullie wel dat jullie erbij waren', 'Dank je wel dat je erbij was');
+    return t;
+  }
+  function thanksSubject(g) {
+    var s = $('bedankSubject').value.trim() || 'Bedankt!';
+    return isDuo(g) ? s.replace(/^Dank je wel\b/, 'Dank jullie wel') : s;
+  }
+  function sendThanks(g) {
+    window.location.href = 'mailto:' + encodeURIComponent(g.email).replace(/%40/g, '@') +
+      '?subject=' + encodeURIComponent(thanksSubject(g)) + '&body=' + encodeURIComponent(thanksFor(g));
+    if (!g.thankedAt) g.thankedAt = new Date().toISOString();
+    setTimeout(renderGuests, 300);
+    api('/api/admin/guests', { method: 'POST', body: { action: 'thanked', token: g.token } }).catch(function () {});
+  }
 
   function fillTemplate() {
     $('tplSubject').value = G.settings.subject || '';

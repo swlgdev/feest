@@ -94,6 +94,7 @@
             <button type="button" data-g="nietverstuurd" aria-pressed="false">Nog versturen</button>
             <button type="button" data-g="nietgeopend" aria-pressed="false">Niet geopend</button>
             <button type="button" data-g="geopend" aria-pressed="false">Geopend</button>
+            <button type="button" data-g="nietbedankt" aria-pressed="false">Nog bedanken</button>
           </div>
         </div>
         <section class="guest-list" id="guestList" aria-label="Gasten" aria-live="polite"></section>
@@ -102,7 +103,8 @@
       <aside class="side">
         <section class="panel thanks-panel" aria-labelledby="bedankTitle">
           <h2 class="accent" id="bedankTitle">Bedankje</h2>
-          <p class="hint">Klaar om te versturen na het feest. Je kunt de tekst hier nog aanpassen voordat je hem kopieert (dat wordt niet opgeslagen).</p>
+          <p class="hint">Kopieer de tekst, of mail hem per gast met de knop <strong>Mail bedankt</strong> in de lijst. In die mail komt de naam van de gast in de aanhef. Aanpassingen hier gelden voor de mails, maar worden niet opgeslagen.</p>
+          <div class="field"><label for="bedankSubject">Onderwerp (voor e-mail)</label><input id="bedankSubject" type="text" maxlength="200" value="Dank je wel voor een geweldige avond!"></div>
           <label for="bedankText" class="visually-hidden">Tekst van het bedankje</label>
           <textarea id="bedankText" rows="14">Lieve allemaal,
 

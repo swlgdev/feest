@@ -74,12 +74,14 @@ export default async function handler(req, res) {
       return res.status(200).json({ added, skipped });
     }
 
-    if (b.action === 'sent' || b.action === 'update') {
+    if (b.action === 'sent' || b.action === 'thanked' || b.action === 'update') {
       const token = String(b.token || '');
       if (!TOKEN_RE.test(token)) return res.status(400).json({ error: 'Onbekende gast' });
       const guest = await readGuest(token);
       if (!guest) return res.status(404).json({ error: 'Gast niet gevonden' });
-      if (b.action === 'sent') {
+      if (b.action === 'thanked') {
+        guest.thankedAt = guest.thankedAt || new Date().toISOString();
+      } else if (b.action === 'sent') {
         guest.sentAt = guest.sentAt || new Date().toISOString();
         guest.sentVia = Array.from(new Set([].concat(guest.sentVia || [], clean(b.via, 20)).filter(Boolean)));
       } else {
