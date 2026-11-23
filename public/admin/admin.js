@@ -183,13 +183,14 @@
       if (g.openedAt) chips += '<span class="chip open">Geopend ' + esc(fmt(g.openedAt)) + (g.opens > 1 ? ' · ' + g.opens + '×' : '') + '</span>';
       if (g.sentAt) chips += '<span class="chip sent">Verstuurd ' + esc(fmt(g.sentAt)) + (g.sentVia && g.sentVia.length ? ' via ' + esc(g.sentVia.join(' en ')) : '') + '</span>';
       if (!g.sentAt && !g.openedAt) chips += '<span class="chip">Nog niet verstuurd</span>';
-      if (g.thankedAt) chips = '<span class="chip thanked">Bedankt gemaild ' + esc(fmt(g.thankedAt)) + '</span>' + chips;
+      if (g.thankedAt) chips = '<span class="chip thanked">Bedankt ' + esc(fmt(g.thankedAt)) + (g.thankedVia && g.thankedVia.length ? ' via ' + esc(g.thankedVia.join(' en ')) : '') + '</span>' + chips;
       var contact = [g.email, g.telefoon].filter(Boolean).map(esc).join(' · ');
       return '<article class="guest">' +
         '<div class="guest-main"><h3 class="guest-name">' + esc(volledigeNaam(g)) + '</h3><p class="guest-contact">' + contact + '</p><div class="chips">' + chips + '</div></div>' +
         '<div class="guest-actions">' +
         (g.email ? '<button type="button" class="act thank" data-thank="' + g.token + '">' + MAIL_ICON + 'Mail bedankt</button>' : '') +
-        (g.telefoon ? '<a class="act wa" target="_blank" rel="noopener" href="' + esc(waHref(g)) + '" data-sent="' + g.token + '" data-via="WhatsApp">' + WA_ICON + 'WhatsApp</a>' : '') +
+        (g.telefoon ? '<a class="act thank-wa" target="_blank" rel="noopener" href="' + esc(thanksWaHref(g)) + '" data-thankwa="' + g.token + '">' + WA_ICON + 'WhatsApp bedankt</a>' : '') +
+        (g.telefoon ? '<a class="act wa" target="_blank" rel="noopener" href="' + esc(waHref(g)) + '" data-sent="' + g.token + '" data-via="WhatsApp">' + WA_ICON + 'WhatsApp uitnodiging</a>' : '') +
         (g.email ? '<button type="button" class="act mail" data-mail="' + g.token + '">' + MAIL_ICON + 'Mail uitnodiging</button>' : '') +
         '<button type="button" class="act icon" data-edit="' + g.token + '" aria-label="Namen wijzigen van ' + esc(namen(g)) + '" title="Namen wijzigen">' + EDIT_ICON + '</button>' +
         '<button type="button" class="act icon" data-copy="' + g.token + '" aria-label="Kopieer link van ' + esc(g.naam) + '" title="Kopieer link">' + LINK_ICON + '</button>' +
@@ -205,6 +206,13 @@
     var mail = e.target.closest('[data-mail]');
     var edit = e.target.closest('[data-edit]');
     var thank = e.target.closest('[data-thank]');
+    var thankWa = e.target.closest('[data-thankwa]');
+    if (thankWa) {
+      var wg = G.guests.find(function (x) { return x.token === thankWa.getAttribute('data-thankwa'); });
+      // De link wordt bij het klikken opnieuw opgebouwd, zodat tekstaanpassingen in het blok meegaan.
+      if (wg) { thankWa.href = thanksWaHref(wg); markThanked(wg, 'WhatsApp'); }
+      return;
+    }
     if (thank) {
       var tg = G.guests.find(function (x) { return x.token === thank.getAttribute('data-thank'); });
       if (tg) sendThanks(tg);
@@ -397,9 +405,14 @@
   function sendThanks(g) {
     window.location.href = 'mailto:' + encodeURIComponent(g.email).replace(/%40/g, '@') +
       '?subject=' + encodeURIComponent(thanksSubject(g)) + '&body=' + encodeURIComponent(thanksFor(g));
+    markThanked(g, 'e-mail');
+  }
+  function thanksWaHref(g) { return 'https://wa.me/' + waNumber(g.telefoon) + '?text=' + encodeURIComponent(thanksFor(g)); }
+  function markThanked(g, via) {
     if (!g.thankedAt) g.thankedAt = new Date().toISOString();
+    if ((g.thankedVia || []).indexOf(via) < 0) g.thankedVia = (g.thankedVia || []).concat([via]);
     setTimeout(renderGuests, 300);
-    api('/api/admin/guests', { method: 'POST', body: { action: 'thanked', token: g.token } }).catch(function () {});
+    api('/api/admin/guests', { method: 'POST', body: { action: 'thanked', token: g.token, via: via } }).catch(function () {});
   }
 
   function fillTemplate() {

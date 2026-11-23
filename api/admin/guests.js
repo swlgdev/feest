@@ -81,6 +81,7 @@ export default async function handler(req, res) {
       if (!guest) return res.status(404).json({ error: 'Gast niet gevonden' });
       if (b.action === 'thanked') {
         guest.thankedAt = guest.thankedAt || new Date().toISOString();
+        guest.thankedVia = Array.from(new Set([].concat(guest.thankedVia || [], clean(b.via, 20)).filter(Boolean)));
       } else if (b.action === 'sent') {
         guest.sentAt = guest.sentAt || new Date().toISOString();
         guest.sentVia = Array.from(new Set([].concat(guest.sentVia || [], clean(b.via, 20)).filter(Boolean)));

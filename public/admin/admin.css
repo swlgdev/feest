@@ -88,6 +88,7 @@ button{font-family:var(--body);cursor:pointer}
 .act.wa{background:#1F7A4D;border-color:#1F7A4D;color:#fff}
 .act.mail{background:var(--accent);color:var(--card)}
 .act.thank{background:var(--gold);border-color:var(--gold);color:#2B1A0E}
+.act.thank-wa{background:#E8F1E6;border-color:#1F7A4D;color:#1F5A3A}
 .chip.thanked{border-color:#2F5A2A;background:#E8F1E6;color:#2F5A2A}
 .act.icon{width:44px;padding:0;border-color:var(--line);color:var(--muted)}
 .act:hover{filter:brightness(.95)}
