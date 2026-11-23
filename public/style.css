@@ -98,6 +98,8 @@ p{margin:0}
 .cal-row{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:10px}
 .btn-outline{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 22px;border:1px solid var(--accent);border-radius:999px;text-decoration:none;color:var(--accent);font-size:17px}
 .link-small{font-size:15px}
+.looking-back{margin-top:10px;font-family:var(--serif);font-style:italic;font-weight:600;font-size:30px;line-height:1.2;color:var(--accent)}
+.btn-block{justify-content:center;width:100%}
 
 .welcome-text{padding:26px 28px 4px;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
 .rule-short{width:60px;height:1px;background:var(--gold)}
@@ -110,7 +112,7 @@ p{margin:0}
 .cards{display:flex;flex-direction:column;gap:18px;padding:20px 14px 10px}
 /* Mobiel: kolommen "oplossen" en de oorspronkelijke volgorde houden */
 .col{display:contents}
-#tijden{order:1} #cadeau{order:2} #bericht{order:3} #route{order:4}
+#bericht{order:1} #cadeau{order:2}
 .photo-fit{position:absolute;inset:0;transform-origin:0 0;will-change:transform}
 .wall{display:none}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px 22px;display:flex;flex-direction:column;gap:16px;scroll-margin-top:16px}
@@ -224,16 +226,16 @@ p{margin:0}
   .intro-row .welcome-text{padding:40px 52px;text-align:left;align-items:flex-start;justify-content:center;background:var(--bg)}
   .intro-row .greeting{font-size:36px}
   .intro-row .welcome-text p:not(.greeting){font-size:19px}
+  .looking-back{font-size:36px}
   .band-day{font-size:96px}
   .chips{display:none}
   .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;padding:28px 0 10px;align-items:stretch}
   .col{display:flex;flex-direction:column;gap:28px;min-width:0}
   /* Beide kolommen eindigen op dezelfde lijn */
   .col-a > .card:last-child{flex:1}
-  /* Rechts vangt de foto bij de route het hoogteverschil op */
-  .col-b > #route{flex:1}
-  .col-b > #route .card-photo{flex:1 1 auto;height:auto;min-height:200px}
-  .col-b > #cadeau{flex:0 0 auto}
+  /* Rechts vangt de foto bij het kunstwerk het hoogteverschil op */
+  .col-b > #cadeau{flex:1}
+  .col-b > #cadeau .card-photo{flex:1 1 auto;height:auto;min-height:200px}
   /* Links: het tekstvak van het berichtje groeit mee als de rechterkolom hoger is */
   #bericht .form{flex:1}
   #bericht .field-grow{flex:1}

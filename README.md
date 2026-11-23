@@ -2,8 +2,8 @@
 
 Feestpagina voor de 40e en 50e verjaardag van Joyce & Marco, zaterdag 21 november 2026 in Central Park Voorburg.
 
-- **Gasten:** `https://app.joycemarco.nl` - scroll-intro door de poort, aftellen, route, cadeautip en een privé berichtje (met optioneel verzoeknummer en foto).
-- **Joyce & Marco:** `https://app.joycemarco.nl/admin` - uitnodigingen (persoonlijke links versturen via WhatsApp of mail, zien wie geopend heeft) en gastenboek met zoeken, favorieten, verzoeknummers, boekje (PDF) en diavoorstelling.
+- **Gasten:** `https://app.joycemarco.nl` - na het feest een bedankpagina: scroll-intro door de poort, bedankje, het kunstwerk (alsnog bijdragen) en een privé berichtje (met optionele foto).
+- **Joyce & Marco:** `https://app.joycemarco.nl/admin` - kopieerbaar bedankje (ook direct naar WhatsApp), uitnodigingen (persoonlijke links versturen via WhatsApp of mail, zien wie geopend heeft) en gastenboek met zoeken, favorieten, verzoeknummers, boekje (PDF) en diavoorstelling.
 
 ## Alleen op uitnodiging
 

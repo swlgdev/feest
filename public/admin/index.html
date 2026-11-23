@@ -100,6 +100,25 @@
       </div>
 
       <aside class="side">
+        <section class="panel thanks-panel" aria-labelledby="bedankTitle">
+          <h2 class="accent" id="bedankTitle">Bedankje</h2>
+          <p class="hint">Klaar om te versturen na het feest. Je kunt de tekst hier nog aanpassen voordat je hem kopieert (dat wordt niet opgeslagen).</p>
+          <label for="bedankText" class="visually-hidden">Tekst van het bedankje</label>
+          <textarea id="bedankText" rows="14">Lieve allemaal,
+
+Wat een geweldige avond was het afgelopen zaterdag in Central Park! Dank jullie wel dat jullie erbij waren om onze 40 en 50 samen met ons te vieren. Jullie maakten het tot een feest om nooit te vergeten.
+
+En voor iedereen die iets heeft bijgedragen: dankjewel, wat lief van jullie! We gaan er een mooi kunstwerk van uitzoeken voor aan de muur, zodat we elke dag aan deze avond (en aan jullie) terugdenken.
+
+Liefs,
+Joyce &amp; Marco</textarea>
+          <div class="thanks-actions">
+            <button type="button" class="btn-primary" id="bedankCopy">Kopieer tekst</button>
+            <a class="act wa" id="bedankWa" href="https://wa.me/" target="_blank" rel="noopener">WhatsApp</a>
+          </div>
+          <p class="result" id="bedankResult" role="status" hidden></p>
+        </section>
+
         <section class="panel">
           <h2 class="accent">Gast toevoegen</h2>
           <form id="addOne" class="stack">

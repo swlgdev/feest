@@ -3,7 +3,6 @@
 
   // Vul hier de echte betaallink in (bijv. een Tikkie- of bunq-link).
   var BETAAL_URL = 'https://betaalverzoek.rabobank.nl/betaalverzoek/?id=OcqN_qLVQ3KgLJS2Y4Ux-Q';
-  var FEEST = new Date('2026-11-21T19:30:00+01:00').getTime();
   var COLORS = ['#8E1A1C', '#C9A46A', '#D9772B', '#B8321E', '#E8C9A0', '#6E1E2A'];
 
   var $ = function (id) { return document.getElementById(id); };
@@ -171,25 +170,12 @@
     var onbekend = duo && /^(partner|partner\?|introduc[eé]e?|aanhang|\+ ?1|ja|x)$/i.test(String(j.naam2).trim());
     var namen = duo && !onbekend ? j.naam + ' en ' + j.naam2 : j.naam;
     $('greeting').textContent = 'Lieve ' + namen + ',';
-    $('welkomTekst').textContent = duo
-      ? 'Ontzettend leuk dat jullie erbij zijn om samen met ons onze 40e en 50e verjaardag te vieren! We kijken er enorm naar uit om er met familie en vrienden een bijzondere en feestelijke avond van te maken.'
-      : 'Ontzettend leuk dat je erbij bent om samen met ons onze 40e en 50e verjaardag te vieren! We kijken er enorm naar uit om er met familie en vrienden een bijzondere en feestelijke avond van te maken.';
+    $('welkomTekst').textContent = (duo
+      ? 'Dank jullie wel dat jullie erbij waren'
+      : 'Dank je wel dat je erbij was') + ' om onze 40 en 50 samen met ons te vieren. Jullie maakten het tot een feest om nooit te vergeten.';
     var n = $('gb-naam');
     if (n && !n.value) n.value = namen;
   }).catch(function () {});
-
-  /* ---------- Aftellen ---------- */
-  var cd = { d: $('cdD'), h: $('cdH'), m: $('cdM'), s: $('cdS') };
-  function pad(n) { return (n < 10 ? '0' : '') + n; }
-  function tick() {
-    var diff = Math.max(0, FEEST - Date.now());
-    cd.d.textContent = Math.floor(diff / 86400000);
-    cd.h.textContent = pad(Math.floor(diff / 3600000) % 24);
-    cd.m.textContent = pad(Math.floor(diff / 60000) % 60);
-    cd.s.textContent = pad(Math.floor(diff / 1000) % 60);
-  }
-  tick();
-  setInterval(tick, 1000);
 
   /* ---------- Bericht ---------- */
   var form = $('msgForm'), fotoInput = $('gb-foto'), fotoLabel = $('fotoLabel'), preview = $('fotoPreview');

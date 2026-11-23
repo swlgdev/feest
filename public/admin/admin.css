@@ -127,6 +127,11 @@ button{font-family:var(--body);cursor:pointer}
 .tpl-head{margin-top:6px;padding-top:12px;border-top:1px solid var(--line);font-family:var(--serif);font-weight:700;font-size:19px;color:var(--accent)}
 .tpl-head:first-child{border-top:0;padding-top:0;margin-top:0}
 .field label .hint{font-weight:400}
+.thanks-panel{border:2px solid var(--gold)}
+.thanks-panel textarea{line-height:1.5}
+.thanks-actions{display:flex;gap:8px}
+.thanks-actions .btn-primary{flex:1;min-height:46px;font-size:17px}
+.thanks-actions .act{min-height:46px}
 .result{padding:10px 12px;border-radius:8px;background:#F6EBD7;font-size:15px;white-space:pre-line}
 .result.err{background:#F7E1DF;color:#7A1414}
 

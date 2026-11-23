@@ -353,6 +353,28 @@
     openReview(window.JMImport.parseText(text), 'de geplakte lijst');
   });
 
+  /* ---------- Bedankje (kopieerbaar) ---------- */
+  function bedankText() { return $('bedankText').value.trim(); }
+  function updateBedankWa() { $('bedankWa').href = 'https://wa.me/?text=' + encodeURIComponent(bedankText()); }
+  $('bedankWa').insertAdjacentHTML('afterbegin', WA_ICON);
+  $('bedankText').addEventListener('input', updateBedankWa);
+  updateBedankWa();
+  $('bedankCopy').addEventListener('click', function () {
+    var text = bedankText(), btn = $('bedankCopy');
+    var done = function () {
+      btn.textContent = 'Gekopieerd!';
+      showResult('bedankResult', 'De tekst staat op je klembord. Plak hem in WhatsApp of je mail (Ctrl+V of Cmd+V; op je telefoon: lang drukken en Plakken).');
+      setTimeout(function () { btn.textContent = 'Kopieer tekst'; }, 2000);
+    };
+    var fallback = function () {
+      var ta = $('bedankText'); ta.focus(); ta.select();
+      try { if (document.execCommand('copy')) return done(); } catch (e) {}
+      showResult('bedankResult', 'Kopiëren lukte niet automatisch. De tekst is geselecteerd: kopieer hem met Ctrl+C of Cmd+C.', true);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+    else fallback();
+  });
+
   function fillTemplate() {
     $('tplSubject').value = G.settings.subject || '';
     $('tplText').value = G.settings.template || '';
