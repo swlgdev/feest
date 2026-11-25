@@ -170,9 +170,11 @@
     var onbekend = duo && /^(partner|partner\?|introduc[eé]e?|aanhang|\+ ?1|ja|x)$/i.test(String(j.naam2).trim());
     var namen = duo && !onbekend ? j.naam + ' en ' + j.naam2 : j.naam;
     $('greeting').textContent = 'Lieve ' + namen + ',';
-    $('welkomTekst').textContent = (duo
-      ? 'Dank jullie wel dat jullie erbij waren'
-      : 'Dank je wel dat je erbij was') + ' om onze 40 en 50 samen met ons te vieren. Jullie maakten het tot een feest om nooit te vergeten.';
+    // Eén gast: "jou/jouw/je" in plaats van "jullie".
+    if (!duo) {
+      $('welkomTekst').textContent = 'Wij willen jou onwijs bedanken voor jouw aanwezigheid op ons feest! Wij hebben ervan genoten!';
+      $('welkomTekst2').textContent = 'Ook willen we je heel graag bedanken voor je bijdrage aan ons cadeau en alle lieve en attente woorden die je in het gastenboek hebt geplaatst. Het was erg leuk om te lezen.';
+    }
     var n = $('gb-naam');
     if (n && !n.value) n.value = namen;
   }).catch(function () {});
