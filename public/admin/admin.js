@@ -396,9 +396,8 @@
   function thanksFor(g) {
     var t = bedankText().replace(/^Lieve allemaal,/, 'Lieve ' + namen(g) + ',');
     if (!isDuo(g)) {
-      t = t.replace('Wij willen jullie onwijs bedanken voor jullie aanwezigheid', 'Wij willen jou onwijs bedanken voor jouw aanwezigheid')
-        .replace('Ook willen we jullie heel graag bedanken voor jullie bijdrage', 'Ook willen we je heel graag bedanken voor je bijdrage')
-        .replace('die jullie in het gastenboek hebben geplaatst', 'die je in het gastenboek hebt geplaatst');
+      // Alleen de eerste zin persoonlijk; de zin over bijdrage en gastenboek blijft bewust algemeen ("jullie").
+      t = t.replace('Wij willen jullie onwijs bedanken voor jullie aanwezigheid', 'Wij willen jou onwijs bedanken voor jouw aanwezigheid');
     }
     return t;
   }
